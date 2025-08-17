@@ -19,6 +19,7 @@
 #text(18pt, weight: "bold")[Apuntes del curso "Full Stack Developer" del ITBA]
 
 #outline(title: "Índice")
+#pagebreak()
 
 = HTML
 == ¿Qué es HTML?
@@ -787,4 +788,301 @@ Son extremadamente útiles para crear secciones que deben ocupar toda la pantall
   justify-content: center;
   align-items: center;
 }
+```
+
+= JavaScript
+== ¿Qué es JavaScript?
+JavaScript es un *lenguaje de programación* que nos permite crear contenido dinámico, controlar multimedia, animar elementos y, en general, hacer que nuestras páginas web sean interactivas. A diferencia de HTML y CSS que son lenguajes declarativos (describen cómo es algo), JavaScript es un lenguaje imperativo (da órdenes y ejecuta lógica).
+
+== ¿Cómo se inserta JavaScript en HTML?
+Al igual que con CSS, existen tres formas de incluir JavaScript en un documento HTML, pero una es la práctica recomendada por su organización y eficiencia.
+
+1. *JavaScript en Línea (Inline):* Se escribe directamente en un atributo de una etiqueta HTML, como onclick.
+```html
+<button onclick="alert('¡Hiciste clic!');">Púlsame</button>
+```
+
+2. *JavaScript Interno:* Se escribe dentro de una etiqueta <script> en el propio archivo HTML. La práctica recomendada es colocar esta etiqueta justo *antes del cierre de la etiqueta `</body>`.*
+```html
+<body>
+  <h1>Mi Página</h1>
+  <script>
+    alert('¡La página se ha cargado!');
+  </script>
+</body>
+```
+*¿Por qué al final?* Porque asegura que todo el contenido HTML de la página ya ha sido cargado por el navegador. De esta forma, tu script puede acceder y manipular cualquier elemento sin riesgo de que aún no exista.
+
+3. *JavaScript Externo - ✅ ¡La Forma Correcta!:* Creamos un archivo separado con la extensión .js (ej: app.js) y lo enlazamos desde el HTML. Esta es la forma profesional y organizada de trabajar.
+
+*app.js*
+```js
+console.log('¡Mi script externo está funcionando!');
+```
+
+*index.html:* Se enlaza de la misma forma que un script interno, pero usando el atributo src (source). Y sí, también se coloca justo antes de `</body>`.
+```html
+<body>
+  <script src="app.js"></script>
+</body>
+```
+*Veredicto: ✅ La mejor práctica.* Mantiene tu código limpio, separado, reutilizable y mucho más fácil de gestionar a medida que el proyecto crece.
+
+== Consola del navegador
+La *consola* es una herramienta fundamental para cualquier desarrollador de JavaScript. Es una ventana dentro de las "Herramientas de Desarrollador" de tu navegador (puedes abrirla con F12 o clic derecho > Inspeccionar > Consola) donde puedes ver mensajes de error, registrar información y depurar tu código.
+
+El comando más importante que usarás miles de veces es console.log(). Sirve para "imprimir" cualquier valor en la consola y así verificar qué está pasando en tu código.
+
+*app.js*
+```js
+console.log('Hola, consola!');
+console.log(5 + 3); // Imprimirá 8 en la consola
+```
+
+== Variables y constantes
+Para poder realizar tareas, un programa necesita guardar información en la memoria. Para esto usamos *variables y constantes*. Piensa en ellas como cajas etiquetadas donde guardamos datos.
+
+=== Variables con let
+Una variable declarada con let es una "caja" cuyo contenido *puede cambiar* a lo largo del tiempo. Es la forma moderna de declarar variables que necesitan ser reasignadas.
+```js
+let edad = 18;
+console.log("Edad inicial:", edad); // Muestra: Edad inicial: 18
+ 
+edad = 19; // El valor de la caja ha cambiado
+console.log("Edad actualizada:", edad); // Muestra: Edad actualizada: 19
+```
+
+=== Constantes con const
+Una constante declarada con const es una "caja" que, una vez que le pones algo dentro, *no puedes volver a cambiar su contenido*. Su valor es constante.
+
+Es una *buena práctica usar const por defecto* para todo, y solo cambiar a let si sabes con seguridad que necesitarás reasignar esa variable. Esto hace tu código más seguro y predecible.
+
+```js
+const NOMBRE_USUARIO = "JotaMuebles";
+console.log(NOMBRE_USUARIO); // Muestra: JotaMuebles
+ 
+// Si intentas hacer esto, obtendrás un error en la consola ¡y eso es bueno!
+// NOMBRE_USUARIO = "OtroNombre"; // TypeError: Assignment to constant variable.
+```
+_(Nota histórica: Antes se usaba var para declarar variables. Aunque lo verás en código antiguo, la práctica moderna prefiere let y const porque tienen un comportamiento más predecible y seguro)._
+
+== Tipos de datos
+=== Tipos de datos primitivos
+==== String (cadena de texto)
+Se usa para cualquier tipo de texto. Se puede escribir con comillas simples (' '), dobles (" ") o comillas invertidas (\`).
+```js
+const nombreMuebleria = "Mueblería Jota";
+let saludo = '¡Bienvenido!';
+// Las comillas invertidas permiten interpolar variables:
+let mensajeCompleto = `${saludo} Visita ${nombreMuebleria}.`; 
+console.log(mensajeCompleto); // Muestra: ¡Bienvenido! Visita Mueblería Jota.
+```
+
+==== Number (número)
+Se usa para cualquier tipo de número, ya sean enteros o con decimales.
+```js
+const cantidadDeSillas = 4;
+let precio = 150.99;
+```
+
+==== Boolean (booleano)
+Representa un valor lógico y solo puede ser true (verdadero) o false (falso). Es la base para tomar decisiones en nuestro código.
+```js
+const clienteEsRegistrado = true;
+let hayStock = false;
+```
+
+==== undefined
+Representa una variable que ha sido declarada pero a la que *aún no se le ha asignado un valor*. Es la "caja vacía" por defecto.
+```js
+let direccionDelCliente;
+console.log(direccionDelCliente); // Muestra: undefined
+```
+
+==== null
+Representa la *ausencia intencional* de un valor. Es diferente de undefined porque aquí, el programador ha puesto la "caja vacía" a propósito.
+```js
+let telefonoSecundario = null; // El usuario no proveyó un segundo teléfono.
+```
+_(Existen otros tipos primitivos como BigInt y Symbol, pero son de uso más avanzado)._
+
+== Operadores
+Los operadores nos permiten manipular nuestras variables y valores.
+
+=== Operadores aritméticos
+Son los operadores matemáticos que ya conoces.
+- + Suma (y también concatena strings)
+- - Resta
+- \* Multiplicación
+- \/ División
+- % Módulo (devuelve el resto de una división)
+
+```js
+let totalProductos = 5 + 3; // totalProductos es 8
+let nombreCompleto = "Juan" + " " + "Pérez"; // nombreCompleto es "Juan Pérez"
+let resto = 10 % 3; // resto es 1 (porque 10/3 = 3 y sobra 1)
+```
+
+=== Operadores de comparación
+Se usan para comparar dos valores y *siempre devuelven un booleano* (true o false).
+
+- > Mayor que
+- < Menor que
+- >= Mayor o igual que
+- <= Menor o igual que
+- \=== *Estrictamente Igual a*
+- !== *Estrictamente Desigual a*
+
+==== ¡Muy importante! == vs ===
+- \== (igualdad suelta): Compara solo el valor, intentando convertir los tipos. '5' == 5 devuelve true, lo cual puede causar errores inesperados.
+- \=== (igualdad estricta): Compara tanto el *valor como el tipo*. '5' === 5 devuelve false.
+
+*Regla de Oro:* Usa siempre la comparación estricta (=== y !==) para evitar comportamientos extraños y hacer tu código más seguro.
+
+=== Operadores lógicos
+Se usan para combinar expresiones booleanas.
+
+- && (AND / Y Lógico): Devuelve true solo si *ambas* condiciones son verdaderas.
+- || (OR / O Lógico): Devuelve true si *al menos una* de las condiciones es verdadera.
+- ! (NOT / No Lógico): Invierte el valor booleano (!true es false).
+
+```js
+let esAdulto = true;
+let tieneLicencia = false;
+ 
+// Para conducir, necesita ser adulto Y tener licencia
+let puedeConducir = esAdulto && tieneLicencia; // Resultado: false
+ 
+// Para entrar al cine, solo necesita ser adulto O ir con un representante
+let puedeEntrarAlCine = esAdulto || tieneLicencia; // Resultado: true
+```
+
+== Primeras interacciones con el usuario
+JavaScript nos da tres funciones muy simples para interactuar directamente con el usuario a través de ventanas emergentes del navegador. Son excelentes para aprender y hacer pruebas rápidas, aunque no se usan en aplicaciones profesionales modernas.
+
+=== alert()
+Muestra un mensaje simple al usuario. El usuario solo puede hacer clic en "Aceptar".
+```js
+alert('¡Oferta especial en todos los sofás!');
+```
+
+=== prompt()
+Muestra un mensaje y un campo de texto para que el usuario ingrese información. Devuelve el texto ingresado como un string o null si el usuario presiona "Cancelar".
+```js
+const nombreUsuario = prompt('Por favor, ingresa tu nombre:');
+alert('Hola, ' + nombreUsuario);
+```
+
+=== confirm()
+Muestra un mensaje con dos botones: "Aceptar" y "Cancelar". Devuelve true si el usuario acepta o false si cancela.
+```js
+const deseaRecibirNoticias = confirm('¿Te gustaría recibir nuestro boletín de noticias?');
+ 
+if (deseaRecibirNoticias === true) {
+  console.log('El usuario se ha suscrito.');
+} else {
+  console.log('El usuario no quiso suscribirse.');
+}
+```
+
+== Estructuras de control
+=== Estructuras de control condicionales
+==== if / else
+La estructura if (si) es la forma más básica de toma de decisiones. Permite ejecutar un bloque de código solo si una condición es true.
+
+Se puede complementar con else if (si no, si...) para evaluar múltiples condiciones y con else (si no) para ejecutar un código si ninguna de las condiciones anteriores se cumple.
+
+*Sintaxis:*
+```js
+if (condicion) {
+  // Este bloque de código se ejecuta si la condición es verdadera.
+} else if (otraCondicion) {
+  // Este bloque se ejecuta si la primera condición es falsa, pero esta es verdadera.
+} else {
+  // Este bloque se ejecuta si ninguna de las condiciones anteriores es verdadera.
+}
+```
+
+*Ejemplo Práctico en "Mueblería Jota":* Vamos a determinar el estado del stock de un producto.
+```js
+let stockDeSillas = 12;
+ 
+if (stockDeSillas > 20) {
+  console.log("Stock alto: Hay muchas sillas disponibles.");
+} else if (stockDeSillas > 0) {
+  console.log("Stock bajo: ¡Quedan pocas unidades, aprovecha!");
+} else {
+  console.log("Agotado: No hay sillas disponibles por el momento.");
+}
+// Resultado en la consola: "Stock bajo: ¡Quedan pocas unidades, aprovecha!"
+```
+
+=== Estructuras de control iterativas (bucles)
+Los bucles o "loops" nos permiten ejecutar un bloque de código múltiples veces sin tener que escribirlo una y otra vez.
+
+==== Bucle for
+Se usa cuando sabes de antemano *cuántas veces* quieres que se repita una acción.
+
+*Sintaxis:* `for (inicialización; condición; actualización)`
+
++ *Inicialización:* Se ejecuta una sola vez, al principio. Generalmente se declara una variable contador (let i = 0).
++ *Condición:* El bucle se ejecutará mientras esta condición sea true.
++ *Actualización:* Se ejecuta al final de cada repetición. Generalmente se incrementa el contador (i++).
+
+*Ejemplo:* Mostrar una línea de producto 3 veces.
+```js
+for (let i = 1; i <= 3; i++) {
+  console.log("Mostrando silla de comedor modelo #" + i);
+}
+// Resultado en la consola:
+// Mostrando silla de comedor modelo #1
+// Mostrando silla de comedor modelo #2
+// Mostrando silla de comedor modelo #3
+```
+
+==== Bucle while
+Se usa cuando quieres que una acción se repita *mientras una condición sea verdadera*, sin saber necesariamente cuántas veces ocurrirá.
+
+*¡Cuidado!* Debes asegurarte de que algo dentro del bucle haga que la condición eventualmente se vuelva false, o crearás un bucle infinito que bloqueará tu programa.
+
+*Ejemplo:* Simular el ensamblaje de un mueble hasta que esté completo.
+```js
+let piezasEnsambladas = 0;
+const piezasTotales = 5;
+ 
+while (piezasEnsambladas < piezasTotales) {
+  piezasEnsambladas++; // En cada repetición, ensamblamos una pieza.
+  console.log("Ensamblando pieza " + piezasEnsambladas + " de " + piezasTotales);
+}
+ 
+console.log("¡Mueble ensamblado con éxito!");
+```
+
+== Funciones
+Una *función* es un bloque de código reutilizable diseñado para realizar una tarea específica. En lugar de escribir la misma lógica una y otra vez, la "empaquetamos" en una función y la "llamamos" cada vez que la necesitemos.
+
+=== Declarar y Llamar a una Función
+- *Declarar:* Se usa la palabra clave function, seguida de un nombre y paréntesis (). Dentro de los paréntesis van los parámetros, que son como variables placeholder para los datos que la función necesitará.
+- *Llamar (o Invocar):* Se escribe el nombre de la función seguido de paréntesis. Dentro, se pasan los argumentos, que son los valores reales para los parámetros.
+
+=== Retornar valores (return)
+Las funciones no solo hacen cosas, también pueden calcular un valor y "devolverlo". La palabra clave return finaliza la ejecución de la función y devuelve el valor especificado.
+
+=== Ejemplo Práctico: Una función para calcular el precio con IVA.
+```js
+// 1. Declaramos la función con dos parámetros: precio y tasaDeImpuesto
+function calcularPrecioFinal(precioBase, tasaDeImpuesto) {
+  const impuesto = precioBase * tasaDeImpuesto;
+  const precioTotal = precioBase + impuesto;
+  return precioTotal; // 3. La función devuelve el resultado del cálculo
+}
+ 
+// 2. Llamamos a la función con dos argumentos reales
+const precioMesa = 500;
+const iva = 0.21;
+ 
+const precioFinalMesa = calcularPrecioFinal(precioMesa, iva);
+ 
+console.log("El precio final de la mesa es: $" + precioFinalMesa); 
+// Resultado en la consola: El precio final de la mesa es: $605
 ```
