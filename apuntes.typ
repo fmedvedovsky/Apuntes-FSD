@@ -1425,3 +1425,340 @@ async function obtenerProducto(id) {
  
 obtenerProducto(1); // Pedimos el producto con ID 1
 ```
+
+= Node.js
+== ¿Qué es Node.js y por qué lo usamos?
+Es crucial entender esto: *Node.js NO es un nuevo lenguaje de programación*. Node.js es un *entorno de ejecución de JavaScript del lado del servidor*.
+
+*Analogía:* Imagina que los ingenieros de Google tomaron el motor de JavaScript V8 (el corazón de Google Chrome que ejecuta el JS en el navegador), lo sacaron del auto (el navegador), lo pusieron sobre una mesa y le conectaron un montón de herramientas nuevas. Estas herramientas le dieron a JavaScript el poder de hacer cosas que en el navegador no puede, como:
+
+- Interactuar con el sistema de archivos (leer y escribir archivos).
+- Crear servidores web.
+- Conectarse directamente a bases de datos.
+
+=== ¿Por qué es tan popular en el stack MERN?
+- *JavaScript en Todos Lados:* Usar JavaScript tanto en el frontend (React) como en el backend (Node.js) es increíblemente eficiente. Hablamos el mismo idioma en ambos lados del proyecto, lo que reduce la curva de aprendizaje y acelera el desarrollo.
+- *Rendimiento:* Su modelo de operaciones de Entrada/Salida (I/O) asíncrono y no-bloqueante lo hace extremadamente rápido para aplicaciones que manejan muchas conexiones a la vez, como APIs o chats. No se queda esperando a que una tarea termine para empezar la siguiente.
+- *Ecosistema Gigante (NPM):* Node.js viene con npm (Node Package Manager), el gestor de paquetes más grande del mundo. Es una biblioteca infinita de herramientas y librerías gratuitas que podemos instalar y usar para resolver casi cualquier problema, ahorrándonos miles de horas de trabajo.
+
+== Instalación de Node.js y NPM
+Para empezar, necesitamos instalar Node.js en nuestra computadora. El proceso es muy sencillo.
+
++ *Descargar el Instalador:* Ve a la página oficial de Node.js: https://nodejs.org/es/
++ *Elegir la Versión:* Verás dos opciones:
+
+  - *LTS (Long Term Support):* Es la versión estable, probada y con soporte a largo plazo. Esta es la que debes elegir siempre.
+  - *Current:* Contiene las últimas novedades, pero puede ser inestable. Es para quienes quieren experimentar.
+
++ *Ejecutar el Instalador:* Descarga el archivo para tu sistema operativo (Windows o macOS) y sigue los pasos del asistente. Es un proceso simple de "Siguiente > Siguiente > Finalizar".
++ *Verificar la Instalación:* Una vez instalado, abre tu terminal (Terminal, PowerShell, Git Bash, etc.) y ejecuta los siguientes dos comandos:
+
+```sh
+node -v
+npm -v
+```
+5. Si todo salió bien, verás los números de las versiones instaladas (ej: v20.12.2 y 10.5.0).
+
+== REPL: tu "patio de juegos" interactivo
+Node.js incluye una herramienta muy útil llamada *REPL* (Read-Eval-Print-Loop). Es una consola interactiva que te permite escribir y probar código JavaScript al instante, sin necesidad de crear un archivo.
+
+Para acceder, simplemente abre tu terminal y escribe:
+```sh
+node
+```
+Verás un cursor > esperando tus comandos. Puedes probar variables, funciones, operaciones, etc. Para salir, presiona Ctrl + C dos veces.
+
+== Módulos core: las herramientas integradas de Node.js
+Node.js viene con "módulos nativos" que nos dan funcionalidades esenciales. Para usarlos, necesitamos "requerirlos" en nuestro código usando la función require().
+
+=== fs (File System)
+Permite interactuar con el sistema de archivos.
+
+*Ejemplo app.js:*
+```js
+const fs = require('fs'); // Requerimos el módulo
+ 
+// Leer un archivo de forma asíncrona (la forma preferida)
+fs.readFile('./mi_archivo.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error("Error al leer:", err);
+    return;
+  }
+  console.log("Contenido del archivo:", data);
+});
+ 
+// Escribir en un archivo de forma asíncrona
+const nuevoContenido = 'Escribiendo en un archivo con Node.js';
+fs.writeFile('./nuevo_archivo.txt', nuevoContenido, (err) => {
+  if (err) throw err;
+  console.log('¡El archivo ha sido guardado!');
+});
+```
+
+=== path
+Ayuda a trabajar con rutas de archivos y directorios de forma compatible entre sistemas operativos (Windows usa \ y Linux/macOS usa /).
+
+*Ejemplo app.js:*
+```js
+const path = require('path');
+ 
+const rutaCompleta = path.join('/usuarios', 'documentos', 'factura.pdf');
+console.log(rutaCompleta); // Salida: /usuarios/documentos/factura.pdf
+ 
+const extension = path.extname(rutaCompleta);
+console.log(extension); // Salida: .pdf
+```
+
+=== http: creando nuestro primer servidor web
+¡Este es uno de los módulos más importantes! Nos permite crear un servidor HTTP desde cero. Es la base sobre la que se construyen frameworks como Express.js.
+
+*Ejemplo server.js:*
+```js
+const http = require('http');
+ 
+const PORT = 3000;
+ 
+// Creamos el servidor
+const server = http.createServer((req, res) => {
+  // req: La petición que llega del cliente (navegador)
+  // res: La respuesta que le vamos a enviar de vuelta
+ 
+  if (req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('<h1>Bienvenido a Mueblería Jota</h1>');
+  } else if (req.url === '/productos') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    const productos = [{ id: 1, nombre: 'Silla' }, { id: 2, nombre: 'Mesa' }];
+    res.end(JSON.stringify(productos));
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/html' });
+    res.end('<h2>404 - Página No Encontrada</h2>');
+  }
+});
+ 
+// Hacemos que el servidor "escuche" peticiones en el puerto 3000
+server.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+```
+*Para probarlo:*
++ Guarda el código como server.js.
++ En tu terminal, ejecuta node server.js.
++ Abre tu navegador y visita http://localhost:3000 y http://localhost:3000/productos. ¡Verás las respuestas que tu propio servidor está enviando!
+
+== Creando y usando módulos
+=== ¿Qué es un módulo y por qué deberían importarnos?
+En Node.js, un módulo no es más que un archivo de JavaScript que encapsula código relacionado. Piensa en él como un capítulo de un libro o una caja de herramientas especializada. En lugar de tener una sola caja de herramientas gigante y desordenada, tienes una para la plomería, otra para la electricidad, etc.
+
+==== ¿Por qué usamos módulos?
+- *Organización:* Dividen una aplicación grande en partes pequeñas y lógicas. El código para manejar usuarios va en un módulo, el de productos en otro.
+- *Reutilización:* Una vez que creas un módulo (ej: una función para validar emails), puedes usarlo en múltiples partes de tu proyecto o incluso en proyectos futuros.
+- *Encapsulamiento:* Las variables y funciones dentro de un módulo son privadas por defecto. No pueden ser accedidas desde fuera a menos que tú decidas exportarlas explícitamente. Esto evita conflictos y hace el código más seguro.
+- *Mantenibilidad:* Si hay un error en la lógica de los usuarios, sabes exactamente en qué archivo (user.js) buscar.
+
+==== El Sistema de Módulos CommonJS
+
+Node.js utiliza (tradicionalmente) un sistema de módulos llamado *CommonJS*. Se basa en dos comandos clave:
+
+- *require():* La función que usamos para *importar* o "traer" un módulo a nuestro archivo actual.
+- *module.exports:* Un objeto especial que usamos para *exportar* las partes de nuestro módulo que queremos hacer públicas y accesibles para otros archivos.
+
+==== Creando Nuestro Primer Módulo
+Vamos a crear un módulo para "Mueblería Jota" que contenga funciones de cálculo de precios.
+
+===== Paso 1: Crear el Módulo (calculadoraPrecios.js)
+Crea un archivo nuevo con este nombre.
+```js
+// calculadoraPrecios.js
+ 
+const IVA = 0.21;
+ 
+function sumarIva(precioBase) {
+  return precioBase * (1 + IVA);
+}
+ 
+function calcularDescuento(precio, porcentaje) {
+  const montoDescuento = (precio * porcentaje) / 100;
+  return precio - montoDescuento;
+}
+ 
+// Hacemos que nuestras funciones sean públicas exportándolas.
+// Asignamos un objeto a module.exports con lo que queremos exponer.
+module.exports = {
+  sumarIva: sumarIva,
+  calcularDescuento: calcularDescuento
+};
+ 
+// Forma corta (si la clave y el valor tienen el mismo nombre):
+// module.exports = { sumarIva, calcularDescuento };
+```
+*Explicación:* module.exports es el objeto que la función require() devolverá. Aquí, estamos diciendo que nuestro módulo exporta un objeto con dos propiedades: sumarIva y calcularDescuento, cuyos valores son las funciones que definimos arriba. La constante IVA sigue siendo privada y no se puede acceder desde fuera.
+
+===== Paso 2: Usar o "Consumir" el Módulo (index.js)
+Ahora, en nuestro archivo principal, vamos a usar las herramientas de nuestra nueva caja.
+```js
+// index.js
+ 
+// 1. Importamos nuestro módulo. La ruta './' significa "en la misma carpeta".
+const calculadora = require('./calculadoraPrecios.js');
+ 
+// 2. 'calculadora' ahora contiene el objeto que exportamos.
+const precioSilla = 5000;
+const precioMesa = 20000;
+ 
+// 3. Usamos las funciones del módulo
+const precioFinalSilla = calculadora.sumarIva(precioSilla);
+console.log(`El precio final de la silla es: $${precioFinalSilla}`);
+// Salida: El precio final de la silla es: $6050
+ 
+const precioMesaConDescuento = calculadora.calcularDescuento(precioMesa, 15); // Un 15% de descuento
+console.log(`El precio de la mesa con descuento es: $${precioMesaConDescuento}`);
+// Salida: El precio de la mesa con descuento es: $17000
+```
+
+===== Paso 3: Ejecutar el Código
+En tu terminal, simplemente ejecuta el archivo principal:
+```sh
+node index.js
+```
+Verás los resultados de los cálculos, demostrando que tu index.js pudo usar con éxito la lógica definida en calculadoraPrecios.js.
+
+==== Otras Formas de Exportar
+A veces, un módulo tiene una única y principal funcionalidad. En esos casos, puedes exportar esa función directamente.
+
+*Ejemplo: saludo.js*
+```js
+// Este módulo solo exporta una función.
+module.exports = function(nombre) {
+  console.log(`¡Hola, ${nombre}! Bienvenido a Mueblería Jota.`);
+};
+```
+*Uso en index.js*
+```js
+const saludar = require('./saludo.js'); // 'saludar' ahora es la función misma
+ 
+saludar('Ana'); // Salida: ¡Hola, Ana! Bienvenido a Mueblería Jota.
+```
+
+===== Una Nota sobre exports vs. module.exports
+
+Quizás veas código que usa exports.miFuncion = .... Piensa en esto: module.exports es el *camión de envíos* real. exports es solo un *ayudante* que, por defecto, apunta a ese mismo camión. Puedes darle paquetes al ayudante (exports.algo = ...) y él los pondrá en el camión. Pero si intentas reemplazar al ayudante por un camión nuevo (exports = ...), el camión original (module.exports) se irá vacío.
+
+*Recomendación para principiantes:* Para evitar confusiones, *usa siempre module.exports*. Es más explícito y seguro.
+
+==== ¿Cómo Funciona require()?
+Es importante saber cómo require() busca los módulos:
+
+- *Si la ruta empieza con ./ o ../:* Node.js sabe que es un módulo local que tú has creado y lo busca en esa ruta relativa.
+- *Si es solo un nombre ('http', 'express'):* Node.js asume que es un *módulo nativo* o un *paquete instalado con NPM* y lo buscará en la carpeta node_modules.
+
+= NPM
+== NPM: el gigantesco "App Store" para desarrolladores
+*NPM (Node Package Manager)* es el gestor de paquetes de Node. Es dos cosas a la vez:
+
++ Un *repositorio online gigantesco* (la "tienda") que alberga cientos de miles de paquetes de código abierto (librerías, frameworks, herramientas).
++ Una *herramienta de línea de comandos* (npm) que usamos para instalar y gestionar esos paquetes en nuestros proyectos.
+
+*Analogía:* Piensa en NPM como una *inmensa biblioteca de piezas de LEGO*. ¿Necesitas una rueda especial, una ventana o una figura de astronauta? No la fabricas, simplemente vas a la biblioteca (el repositorio de NPM), la pides con tu carnet (el comando npm), y la usas en tu construcción.
+
+== package.json: el "DNI" de tu proyecto
+Cada proyecto de Node.js que se considere serio tiene un archivo package.json en su raíz.
+
+El package.json es el *manifiesto* o el *documento de identidad* de tu proyecto. Es un archivo en formato JSON que contiene metadatos importantes y, crucialmente, un registro de todas las "piezas de LEGO" (paquetes) que tu proyecto necesita para funcionar.
+
+=== Creando tu package.json
+Es muy fácil. Abre tu terminal, crea una carpeta para tu proyecto y dentro de ella, ejecuta:
+```sh
+# Crea y entra a la nueva carpeta
+mkdir muebleria-jota-backend
+cd muebleria-jota-backend
+ 
+# Inicializa el proyecto
+npm init
+```
+El comando npm init te hará una serie de preguntas (nombre del proyecto, versión, etc.). Puedes presionar Enter para aceptar los valores por defecto. Si quieres saltarte las preguntas y crear un package.json estándar de inmediato, puedes usar:
+```sh
+npm init -y
+```
+Esto creará un archivo package.json con un contenido similar a este:
+```json
+{
+  "name": "muebleria-jota-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+```
+
+==  Instalando paquetes: construyendo con herramientas de otros
+Cuando instalamos un paquete, este se convierte en una *dependencia* de nuestro proyecto. Hay dos tipos:
+
+*Analogía de la Cocina:*
+- *dependencies (Dependencias de Producción):* Son los *ingredientes* de tu pastel (harina, azúcar, huevos). Tu aplicación final *no puede funcionar* sin ellas. Ejemplo: Express.
+- *devDependencies (Dependencias de Desarrollo):* Son las *herramientas de la cocina* que usas para hacer el pastel (batidora, medidores, horno). Son esenciales para el desarrollo, pero no forman parte del pastel final. Ejemplo: Nodemon.
+
+=== Comandos de Instalación
+- *Para instalar una dependencia de producción:*
+```sh
+npm install express
+# Forma corta: npm i express
+```
+
+- *Para instalar una dependencia de desarrollo:*
+```sh
+npm install nodemon --save-dev
+# Forma corta: npm i nodemon -D
+```
+
+=== ¿Qué Sucede Cuando Instalas un Paquete?
++ *Se crea la carpeta node_modules:* Este es el "almacén" donde se descargan y guardan físicamente todos los paquetes que instalas (y sus propias dependencias). ¡Puede llegar a ser muy grande!
++ *Se actualiza package.json:* NPM añade automáticamente el paquete y su versión a la sección dependencies o devDependencies.
++ *Se crea/actualiza package-lock.json:* Este archivo es un registro exacto de las versiones de CADA paquete instalado. Garantiza que si otro desarrollador clona tu proyecto y ejecuta npm install, instalará exactamente las mismas versiones que tú, evitando problemas de compatibilidad.
+
+*La Regla de Oro: .gitignore y node_modules*
+
+La carpeta node_modules *NUNCA* se debe subir a un repositorio de Git. Para asegurarte de esto, crea un archivo .gitignore en la raíz de tu proyecto y añade la siguiente línea:
+```gitignore
+node_modules/
+```
+Cuando alguien clone tu proyecto, no descargará esta carpeta. Simplemente tendrá que ejecutar npm install en su terminal, y NPM leerá el package.json para reconstruir la carpeta node_modules a la perfección.
+
+== NPM scripts: automatizando tus tareas
+La sección "scripts" de tu package.json es un lugar para definir atajos o alias para comandos de la terminal que usas frecuentemente.
+
+*Ejemplo package.json*
+```json
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "test": "jest"
+}
+```
+
+*Cómo ejecutarlos:*
+- npm run dev (ejecutará nodemon server.js)
+- npm test (los scripts start y test tienen atajos y no necesitan run)
+- npm start
+
+=== Ejemplo Práctico con nodemon
+nodemon es una herramienta de desarrollo que reinicia automáticamente tu servidor cada vez que guardas un cambio en un archivo. ¡Es un ahorro de tiempo increíble!
+
++ *Instálalo:* `npm i nodemon -D`
++ *Crea tu archivo principal:* server.js con un console.log('Servidor iniciado...');
++ *Añade el script "dev" a tu package.json:*
+```json
+"scripts": {
+  "dev": "nodemon server.js"
+}
+```
+4. *Ejecútalo desde la terminal:*
+```sh
+npm run dev
+```
+Ahora, cada vez que modifiques y guardes el archivo server.js, verás cómo la terminal se refresca y tu servidor se reinicia solo. Este flujo de trabajo (npm init -> npm install -> npm run dev) es el que usarás en casi todos tus proyectos de backend.
