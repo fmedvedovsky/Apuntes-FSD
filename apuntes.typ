@@ -1061,14 +1061,14 @@ console.log("¡Mueble ensamblado con éxito!");
 == Funciones
 Una *función* es un bloque de código reutilizable diseñado para realizar una tarea específica. En lugar de escribir la misma lógica una y otra vez, la "empaquetamos" en una función y la "llamamos" cada vez que la necesitemos.
 
-=== Declarar y Llamar a una Función
+=== Declarar y llamar a una función
 - *Declarar:* Se usa la palabra clave function, seguida de un nombre y paréntesis (). Dentro de los paréntesis van los parámetros, que son como variables placeholder para los datos que la función necesitará.
 - *Llamar (o Invocar):* Se escribe el nombre de la función seguido de paréntesis. Dentro, se pasan los argumentos, que son los valores reales para los parámetros.
 
 === Retornar valores (return)
 Las funciones no solo hacen cosas, también pueden calcular un valor y "devolverlo". La palabra clave return finaliza la ejecución de la función y devuelve el valor especificado.
 
-=== Ejemplo Práctico: Una función para calcular el precio con IVA.
+=== Ejemplo práctico: una función para calcular el precio con IVA.
 ```js
 // 1. Declaramos la función con dos parámetros: precio y tasaDeImpuesto
 function calcularPrecioFinal(precioBase, tasaDeImpuesto) {
@@ -1085,4 +1085,343 @@ const precioFinalMesa = calcularPrecioFinal(precioMesa, iva);
  
 console.log("El precio final de la mesa es: $" + precioFinalMesa); 
 // Resultado en la consola: El precio final de la mesa es: $605
+```
+
+== Arrays
+=== ¿Qué es un array?
+Piensa en un array como una estantería con casilleros numerados. Es una única "variable" que funciona como una colección ordenada, capaz de guardar múltiples valores en su interior. Cada valor ocupa un "casillero" con un número específico, lo que nos permite acceder a él fácilmente.
+
+=== Creando y accediendo a los elementos de un array
+==== Creación
+La forma más común de crear un array en JavaScript es usando corchetes [].
+
+```js
+// Un array de strings (texto)
+const catalogoMuebles = ['Silla de Comedor', 'Mesa de Centro', 'Sofá de 3 Cuerpos', 'Estantería'];
+ 
+// Un array de numbers (números)
+const precios = [4500, 25000, 80000, 12000];
+ 
+// Un array puede contener tipos de datos mixtos, aunque es menos común.
+const datosProducto = ['Silla Ergonómica', 4.8, true]; // nombre, rating, hayStock
+```
+
+==== Acceso a elementos: el índice base cero
+Para acceder a un elemento específico del array (un "casillero" de la estantería), usamos su *índice* entre corchetes.
+
+*¡Concepto Clave!* En JavaScript, como en muchos otros lenguajes, los índices de los arrays *empiezan en 0*. El primer elemento está en el índice 0, el segundo en el 1, y así sucesivamente.
+
+```js
+console.log(catalogoMuebles[0]); // Muestra: 'Silla de Comedor'
+console.log(catalogoMuebles[2]); // Muestra: 'Sofá de 3 Cuerpos'
+ 
+// También podemos modificar un elemento usando su índice
+catalogoMuebles[1] = 'Mesa de Roble';
+console.log(catalogoMuebles); // El segundo elemento ahora es 'Mesa de Roble'
+```
+
+=== Propiedad .length
+Para saber cuántos elementos hay en un array, usamos la propiedad .length.
+```js
+console.log(catalogoMuebles.length); // Muestra: 4
+```
+*Truco útil:* El índice del último elemento de un array es siempre ```array.length - 1```.
+
+=== Métodos comunes para manipular arrays
+Los arrays vienen con "superpoderes" incorporados llamados *métodos*, que son funciones para manipular su contenido. Estos son los más básicos:
+
+_Estos métodos modifican el array original._
+
+==== Añadir elementos
+- *.push(elemento):* Añade un elemento al *final* del array.
+```js
+precios.push(5500); // Añade 5500 al final
+console.log(precios); // Muestra: [4500, 25000, 80000, 12000, 5500]
+```
+- *.unshift(elemento):* Añade un elemento al *principio* del array.
+```js
+precios.unshift(1000); // Añade 1000 al principio
+console.log(precios); // Muestra: [1000, 4500, 25000, 80000, 12000, 5500]
+```
+
+==== Quitar elementos
+- *.pop():* Elimina el *último* elemento del array y lo devuelve.
+```js
+const precioEliminado = precios.pop();
+console.log(precioEliminado); // Muestra: 5500
+console.log(precios); // El 5500 ya no está en el array
+```
+- *.shift():* Elimina el *primer* elemento del array y lo devuelve.
+```js
+const primerPrecio = precios.shift();
+console.log(primerPrecio); // Muestra: 1000
+console.log(precios); // El 1000 ya no está en el array
+```
+
+=== Recorriendo arrays (Iteración)
+Es muy común necesitar realizar una acción para cada uno de los elementos de un array. A esto se le llama *iterar*.
+
+==== La forma clásica: bucle for
+Podemos combinar un bucle for con la propiedad .length para recorrer el array.
+```js
+const listadoDeMuebles = ['Silla', 'Mesa', 'Cama'];
+ 
+for (let i = 0; i < listadoDeMuebles.length; i++) {
+  console.log('Producto encontrado: ' + listadoDeMuebles[i]);
+}
+// Resultado en la consola:
+// Producto encontrado: Silla
+// Producto encontrado: Mesa
+// Producto encontrado: Cama
+```
+
+==== La forma moderna y recomendada: .forEach()
+Los arrays tienen un método .forEach() que hace la iteración más limpia y legible. Recibe una función como argumento, la cual se ejecutará para cada elemento del array.
+```js
+const listadoDeMuebles = ['Silla', 'Mesa', 'Cama'];
+ 
+listadoDeMuebles.forEach(function(mueble, indice) {
+  console.log(`Índice ${indice}: ${mueble}`);
+});
+ 
+// Usando la sintaxis moderna de "arrow function" (función flecha)
+listadoDeMuebles.forEach((mueble, indice) => {
+  console.log(`Índice ${indice}: ${mueble}`);
+});
+```
+forEach es menos propenso a errores (no tienes que manejar el contador i) y deja más claro lo que intentas hacer: "para cada mueble, haz esto".
+
+== DOM
+=== ¿Qué es el DOM (Document Object Model)?
+Cuando un navegador carga un documento HTML, no lo lee como un simple texto. Lo convierte en una estructura de datos en memoria, una representación en forma de árbol. A este "árbol" vivo y modificable se le llama *DOM (Modelo de Objetos del Documento)*.
+
+*Analogía:* Si tu archivo .html es el *plano* de una casa, el DOM es una *maqueta 3D interactiva* de esa casa que el navegador construye. Cada etiqueta, atributo y texto del plano se convierte en un "objeto" o "nodo" en la maqueta.
+
+JavaScript no modifica el archivo .html original; modifica esta maqueta interactiva, y el navegador actualiza instantáneamente lo que el usuario ve para que coincida con los cambios en la maqueta. El punto de entrada para acceder a todo el DOM en JavaScript es el objeto global document.
+
+=== Seleccionar elementos del DOM
+Para poder cambiar algo, primero tenemos que "agarrarlo". JavaScript nos da varios métodos para seleccionar elementos del DOM.
+
+==== La forma moderna y recomendada: querySelector
+Estos métodos son los más potentes y versátiles porque utilizan la misma sintaxis de *selectores CSS* que ya conoces.
+
+- *document.querySelector(selectorCSS):* Devuelve el *primer* elemento que coincide con el selector especificado. Si no encuentra nada, devuelve null.
+```js
+// Seleccionar el elemento con el ID 'titulo-principal'
+const tituloPrincipal = document.querySelector('#titulo-principal');
+ 
+// Seleccionar el primer elemento con la clase 'item-destacado'
+const itemDestacado = document.querySelector('.item-destacado');
+ 
+// Seleccionar el primer <a> dentro de un <li>
+const primerLink = document.querySelector('li a');
+```
+
+- *document.querySelectorAll(selectorCSS):* Devuelve *todos* los elementos que coinciden con el selector, en una colección especial llamada NodeList que se puede recorrer como un array.
+```js
+// Seleccionar todos los párrafos dentro de un <article>
+const todosLosParrafos = document.querySelectorAll('article p');
+ 
+// Ahora podemos iterar sobre ellos
+todosLosParrafos.forEach(parrafo => {
+  parrafo.style.lineHeight = '1.6'; // Aumentamos el interlineado de cada párrafo
+});
+```
+_(Existen métodos más antiguos como getElementById, getElementsByClassName, etc., pero querySelector y querySelectorAll son generalmente preferidos por su flexibilidad)._
+
+=== Manipular los elementos seleccionados
+Una vez que hemos guardado un elemento en una variable, podemos hacer todo tipo de cosas con él.
+
+- *Cambiar el Contenido: .textContent:* Cambia solo el texto de un elemento. Es la forma más segura.
+```js
+tituloPrincipal.textContent = 'Mueblería Jota - ¡Nuevos Productos!';
+```
+- *.innerHTML:* Permite insertar HTML crudo. Es más potente pero *peligroso* si se usa con texto proveniente del usuario, ya que puede exponer tu sitio a ataques (XSS).
+
+- *Cambiar Estilos:* Se accede a través de la propiedad style. Las propiedades CSS con guion (ej: background-color) se escriben en camelCase (ej: backgroundColor).
+```js
+tituloPrincipal.style.color = 'navy';
+tituloPrincipal.style.backgroundColor = '#f1f1f1';
+```
+
+*Trabajar con Clases CSS:* La propiedad classList nos da métodos para manejar clases de forma segura.
+- *.add('nombre-clase'):* Añade una clase.
+- *.remove('nombre-clase'):* Quita una clase.
+- *.toggle('nombre-clase'):* La añade si no la tiene, o la quita si ya la tiene. ¡Perfecto para un botón de modo oscuro!
+```js
+const menu = document.querySelector('#menu-mobile');
+menu.classList.add('abierto');
+```
+
+=== Crear y añadir nuevos elementos
+También podemos crear elementos HTML desde cero y añadirlos a la página.
+
+*El flujo:*
++ *Crear el elemento:* document.createElement('nombreEtiqueta')
++ *Añadirle contenido:* Usando .textContent o .innerHTML.
++ *Añadirlo al DOM:* Usando elementoPadre.appendChild(elementoHijo).
+
+*Ejemplo:* Añadir un nuevo mueble a una lista existente.
+
+```js
+// 1. Seleccionamos el contenedor padre (la lista <ul>)
+const listaCatalogo = document.querySelector('#lista-de-muebles');
+ 
+// 2. Creamos el nuevo elemento <li> en memoria
+const nuevoMueble = document.createElement('li');
+ 
+// 3. Le damos contenido
+nuevoMueble.textContent = 'Sofá Cama';
+nuevoMueble.classList.add('nuevo-item'); // ¡También le podemos añadir clases!
+ 
+// 4. Lo añadimos al final de la lista <ul>
+listaCatalogo.appendChild(nuevoMueble);
+```
+
+=== Escuchando eventos del emailUsuario
+La manipulación del DOM se vuelve realmente poderosa cuando responde a las acciones del usuario. Para esto, "escuchamos" eventos.
+
+El método *addEventListener()* es la forma moderna de hacerlo. Recibe dos argumentos principales: el *nombre del evento* (como un string) y la *función que se ejecutará* cuando ocurra el evento.
+
+*Ejemplo:* Hacer que un botón muestre un mensaje al ser clickeado.
+
+```js
+const botonComprar = document.querySelector('#btn-comprar');
+ 
+botonComprar.addEventListener('click', function() {
+  alert('¡Gracias por tu interés! Producto añadido al carrito.');
+});
+```
+
+== Asincronía
+=== Callbacks
+Un *callback* es una función que se pasa como argumento a otra función, para ser "llamada de vuelta" (called back) más tarde. Es la forma más fundamental de manejar la asincronía.
+
+*Ejemplo con setTimeout (que simula una espera de red):*
+```js
+console.log("1. Pidiendo una mesa en Mueblería Jota...");
+ 
+// setTimeout delega la tarea a una API del navegador.
+setTimeout(() => {
+  // Este código se ejecutará DESPUÉS de 2 segundos.
+  console.log("3. ¡Mesa confirmada después de 2 segundos!");
+}, 2000); // 2000 milisegundos = 2 segundos
+ 
+console.log("2. Mientras esperas, puedes seguir mirando nuestro catálogo.");
+```
+
+*Orden de ejecución en la consola:*
+
++ Pidiendo una mesa...
++ Mientras esperas, puedes seguir mirando...
++ (...pasan 2 segundos...)
++ ¡Mesa confirmada...
+
+Esto demuestra que JavaScript no se bloqueó esperando. Delegó la tarea y continuó. Sin embargo, cuando muchas operaciones asíncronas dependen unas de otras, los callbacks anidados crean el famoso "*Callback Hell*" o "Pirámide de la Condena", un código difícil de leer y mantener.
+
+=== Promesas
+Una *Promesa* es un objeto de JavaScript que representa un valor que puede estar disponible *ahora, en el futuro, o nunca*. Es una forma mucho más elegante y estructurada de manejar la asincronía.
+
+Una Promesa tiene 3 estados:
+
++ *pending (pendiente):* El estado inicial. La operación aún no ha terminado.
++ *fulfilled (cumplida):* La operación terminó con éxito. La promesa tiene un valor resultante.
++ *rejected (rechazada):* La operación falló. La promesa tiene un motivo del error.
+
+Para manejar estos estados, usamos los métodos .then() y .catch():
+
++ *.then(resultado => { ... }):* Se ejecuta cuando la promesa se cumple. Recibe el valor del éxito.
++ *.catch(error => { ... }):* Se ejecuta si la promesa es rechazada. Recibe el motivo del error.
+
+*Ejemplo:*
+```js
+// Esta función simula una petición y devuelve una promesa.
+function verificarStock() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const hayStock = Math.random() > 0.5; // Simula aleatoriamente si hay stock o no
+      if (hayStock) {
+        resolve("Producto en stock. ¡Puedes comprar!"); // Promesa cumplida
+      } else {
+        reject("Lo sentimos, el producto está agotado."); // Promesa rechazada
+      }
+    }, 1500);
+  });
+}
+ 
+console.log("Verificando stock del producto...");
+ 
+verificarStock()
+  .then(mensajeDeExito => {
+    console.log("Éxito:", mensajeDeExito);
+  })
+  .catch(mensajeDeError => {
+    console.error("Error:", mensajeDeError);
+  })
+  .finally(() => {
+    console.log("Verificación de stock finalizada."); // .finally() se ejecuta siempre
+  });
+```
+Las promesas se pueden encadenar, haciendo que el código sea mucho más legible que el Callback Hell.
+
+=== async/await
+*async/await* es la forma más moderna y legible de trabajar con promesas. Es "azúcar sintáctica" sobre las promesas, lo que significa que no las reemplaza, sino que nos permite escribirlas de una forma que parece código síncrono.
+- *async:* Se coloca antes de una función para indicar que esta devolverá una promesa.
+- *await:* Se usa *dentro* de una función async. Pausa la ejecución de la función hasta que una promesa se resuelva, y devuelve su valor.
+
+Para manejar errores con async/await, usamos los bloques try...catch que ya conocemos.
+
+*El mismo ejemplo, reescrito con async/await:*
+```js
+// La función que devuelve la promesa es la misma de antes.
+// ...
+ 
+// Creamos una función 'async' para poder usar 'await'
+async function realizarCompra() {
+  console.log("Verificando stock del producto (con async/await)...");
+  try {
+    // 'await' pausa la ejecución aquí hasta que la promesa de verificarStock se resuelva.
+    const mensaje = await verificarStock();
+    console.log("Éxito:", mensaje);
+    console.log("Procediendo al pago...");
+  } catch (error) {
+    // Si la promesa es rechazada, el 'catch' la atrapará.
+    console.error("Error:", error);
+    console.log("No se puede continuar con la compra.");
+  } finally {
+    console.log("Verificación de stock finalizada.");
+  }
+}
+ 
+realizarCompra(); // Llamamos a nuestra función asíncrona
+```
+Como puedes ver, el código dentro de realizarCompra se lee de arriba a abajo, casi como si fuera síncrono, lo que lo hace inmensamente más fácil de entender.
+
+=== API fetch
+Ahora que entendemos la asincronía, podemos usar la herramienta moderna del navegador para hacer peticiones de red: la *API fetch*. fetch está basada en promesas, por lo que funciona perfectamente con .then() o con async/await.
+
+*Ejemplo: Pedir datos de un producto a una API pública (con async/await)*
+```js
+async function obtenerProducto(id) {
+  try {
+    const url = `https://jsonplaceholder.typicode.com/posts/${id}`;
+    const respuesta = await fetch(url);
+ 
+    // fetch no considera un error 404 como un rechazo de la promesa,
+    // así que debemos verificar la respuesta manualmente.
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: El estado es ${respuesta.status}`);
+    }
+ 
+    // response.json() también devuelve una promesa, ¡así que también usamos await!
+    const datosProducto = await respuesta.json();
+ 
+    console.log("Producto obtenido:", datosProducto);
+ 
+  } catch (error) {
+    console.error("No se pudo obtener el producto:", error);
+  }
+}
+ 
+obtenerProducto(1); // Pedimos el producto con ID 1
 ```
