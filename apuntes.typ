@@ -1762,3 +1762,388 @@ nodemon es una herramienta de desarrollo que reinicia automáticamente tu servid
 npm run dev
 ```
 Ahora, cada vez que modifiques y guardes el archivo server.js, verás cómo la terminal se refresca y tu servidor se reinicia solo. Este flujo de trabajo (npm init -> npm install -> npm run dev) es el que usarás en casi todos tus proyectos de backend.
+
+= Express.js
+
+== ¿Qué es Express.js y por qué lo necesitamos?
+Express.js es un *framework web minimalista y flexible para Node.js.*
+
+*Analogía:* Si el módulo http te da las materias primas (metal, madera, tornillos), *Express.js es como un kit de muebles de IKEA*. Te da piezas pre-cortadas, instrucciones claras (app.get, app.post) y herramientas especializadas que hacen el proceso de construcción de tu servidor (o mueble) inmensamente más rápido, fácil y con menos errores.
+
+*¿Por qué usarlo?*
+- *Simplificación Extrema:* Abstrae la complejidad del módulo http. Tareas como manejar rutas, leer datos de una petición y enviar respuestas se vuelven mucho más intuitivas.
+- *Manejo de Rutas (Routing):* Proporciona un sistema potente y claro para definir cómo tu aplicación responde a diferentes URLs y métodos HTTP (GET, POST, etc.). Esto es el corazón de cualquier API.
+- *Middleware:* Permite ejecutar código en medio del ciclo de petición-respuesta. Es una de sus características más poderosas, ideal para autenticación, logging, y procesar datos.
+- *Estructura y Organización:* Fomenta un código más limpio y modular, que es más fácil de mantener a medida que la aplicación crece.
+
+== Nuestro primer servidor con Express
+=== Paso 1: preparar el proyecto
+En tu terminal, creá una nueva carpeta e inicializa un proyecto de NPM.
+```sh
+mkdir muebleria-api
+cd muebleria-api
+npm init -y
+```
+Ahora, instalá express como una dependencia de producción.
+```sh
+npm install express
+```
+
+=== Paso 2: escribir el código del servidor (server.js)
+Creá un archivo server.js en la raíz de tu proyecto.
+```js
+// 1. Requerir el módulo express
+const express = require('express');
+ 
+// 2. Crear una instancia de la aplicación
+const app = express();
+ 
+// 3. Definir el puerto. Es una buena práctica usar una variable de entorno para producción.
+const PORT = process.env.PORT || 4000;
+ 
+// 4. Definir nuestra primera ruta (endpoint)
+// Cuando un cliente haga una petición GET a la raíz ('/'), se ejecutará esta función.
+app.get('/', (req, res) => {
+  // req (request): Objeto con información sobre la petición que llega.
+  // res (response): Objeto con métodos para enviar una respuesta al cliente.
+  
+  // Usamos res.send() para enviar una respuesta simple.
+  res.send('¡Bienvenido al API de Mueblería Jota!');
+});
+ 
+// 5. Poner el servidor a escuchar peticiones
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo exitosamente en http://localhost:${PORT}`);
+});
+```
+
+=== Paso 3: configurar scripts y ejecutar
+Para facilitar el desarrollo, vamos a usar nodemon. Si no lo tienes, instalalo: npm install nodemon -D. Luego, en tu package.json, añadí el script "dev":
+```json
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js"
+}
+```
+¡Ahora, iniciá tu servidor con el nuevo script!
+```sh
+npm run dev
+```
+Abrí tu navegador y ve a http://localhost:4000. Deberías ver el mensaje de bienvenida.
+
+== Rutas y métodos HTTP
+El *routing* (o enrutamiento) consiste en definir cómo responde la aplicación a una petición de un cliente a un endpoint particular (una URL y un método HTTP específico).
+- *GET:* Para solicitar y obtener datos.
+- *POST:* Para crear un nuevo recurso.
+- *PUT:* Para actualizar completamente un recurso.
+- *DELETE:* Para eliminar un recurso.
+
+Vamos a expandir nuestro server.js con más rutas:
+```js
+// server.js
+ 
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 4000;
+ 
+// Middleware para parsear JSON. ¡Crucial para peticiones POST/PUT!
+// Le dice a Express que si llega un cuerpo de petición en formato JSON, lo convierta en un objeto JavaScript.
+app.use(express.json());
+ 
+// --- RUTAS ---
+app.get('/', (req, res) => {
+  res.send('¡Bienvenido al API de Mueblería Jota!');
+});
+ 
+// GET para obtener todos los productos
+app.get('/api/productos', (req, res) => {
+  const productos = [
+    { id: 1, nombre: 'Silla de Comedor', precio: 5000 },
+    { id: 2, nombre: 'Mesa de Roble', precio: 25000 }
+  ];
+  res.json(productos); // res.json() envía una respuesta en formato JSON.
+});
+ 
+// POST para crear un nuevo producto
+app.post('/api/productos', (req, res) => {
+  // Gracias a app.use(express.json()), podemos leer el cuerpo de la petición.
+  const nuevoProducto = req.body; 
+  console.log('Producto recibido:', nuevoProducto);
+ 
+  // Aquí iría la lógica para guardar en la base de datos...
+  
+  // Enviamos una respuesta de éxito con el código 201 (Created).
+  res.status(201).json({ 
+    mensaje: 'Producto creado con éxito', 
+    producto: nuevoProducto 
+  });
+});
+ 
+// ...
+ 
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+```
+
+== Probando nuestra API
+- Las rutas GET las puedes probar directamente en el navegador.
+- Para probar rutas POST, PUT o DELETE, necesitas una herramienta que te permita construir peticiones HTTP completas.
+
+=== Herramientas recomendadas
+- *Postman o Insomnia:* Aplicaciones de escritorio muy completas.
+- *Thunder Client:* Una extensión para VS Code que se integra directamente en tu editor.
+
+=== Para probar la ruta POST /api/productos:
++ Abrí tu herramienta (ej: Postman).
++ Elegí el método POST.
++ Ingresá la URL: http://localhost:4000/api/productos.
++ Andá a la pestaña "Body", selecciona "raw" y el tipo "JSON".
++ Escribí el JSON de tu nuevo producto, por ejemplo:
+```json
+{
+  "nombre": "Lámpara de Pie",
+  "precio": 7500
+}
+```
+6. Enviá la petición. Deberías recibir una respuesta 201 Created y ver el console.log en tu terminal del servidor.
+
+== Middleware
+=== ¿Qué es el middleware?
+En Express, un middleware es simplemente una *función* que se interpone en el medio del ciclo de una petición. Tiene acceso al objeto de la solicitud (req), al objeto de la respuesta (res), y a una función especial llamada next.
+
+*Analogía:* *El Control de Seguridad de un Aeropuerto* Imagina que una petición a tu servidor es un *pasajero* que quiere llegar a su puerta de embarque (la lógica final de tu ruta). Antes de llegar, debe pasar por *varios puntos de control* (los middlewares).
+
+- En el primer control (Middleware 1), le revisan el pasaporte.
+- En el segundo (Middleware 2), escanean su equipaje.
+- En el tercero (Middleware 3), verifican su ticket de embarque.
+
+Cada uno de estos controles es un middleware. Cada uno puede:
++ *Ejecutar código:* Revisar el pasaporte, escanear, etc.
++ *Hacer cambios:* "Sellar" el pasaporte (añadir información al objeto req).
++ *Finalizar el ciclo:* Si el pasajero no tiene pasaporte, le deniegan la entrada y lo sacan de la fila (enviando una respuesta como res.status(401).send(...)).
++ *Pasar al siguiente control:* Si todo está en orden, el guardia llama a next(), que es como decir: "Todo bien, puede avanzar al siguiente punto de control".
+
+Si un middleware no envía una respuesta ni llama a next(), el "pasajero" se queda atascado en ese control para siempre, y la petición nunca se completa.
+
+=== Middleware incorporado (built-in) - las herramientas de fábrica
+Express viene con algunos middlewares esenciales que usaremos en casi todos los proyectos.
+
+==== express.json() - el traductor de JSON
+Cuando un cliente (como nuestra futura app de React) nos envía datos en una petición POST o PUT, generalmente lo hace en formato JSON. Por defecto, Express no entiende este formato.
+
+express.json() es un middleware que *intercepta la petición, revisa si el cuerpo es JSON, y si es así, lo convierte (parsea) en un objeto de JavaScript* que podemos usar cómodamente en req.body.
+
+```js
+const express = require('express');
+const app = express();
+ 
+// Usamos el middleware. ¡Debe ir ANTES de las rutas que lo necesiten!
+app.use(express.json());
+ 
+app.post('/api/productos', (req, res) => {
+  // Gracias a express.json(), req.body ahora es un objeto JS con los datos del cliente.
+  const nuevoProducto = req.body; 
+  console.log(nuevoProducto); // { "nombre": "Sofá", "precio": 120000 }
+  res.status(201).json({ mensaje: 'Producto recibido' });
+});
+```
+
+==== express.static() - el servidor de archivos
+Este middleware permite que Express sirva archivos estáticos (como imágenes, archivos CSS o incluso tu aplicación de React compilada) directamente desde una carpeta en tu servidor.
+```js
+// Le decimos a Express que cualquier petición a un archivo que exista
+// en la carpeta 'public' debe ser servida directamente.
+app.use(express.static('public'));
+ 
+// Si ahora un usuario visita http://localhost:4000/imagenes/logo.png,
+// Express buscará y devolverá el archivo /public/imagenes/logo.png.
+```
+
+=== Creando middleware personalizado
+La verdadera flexibilidad de Express se manifiesta cuando creamos nuestros propios middlewares para tareas como logging, autenticación, validación, etc.
+
+==== Ejemplo 1: un logger de peticiones (middleware global)
+Vamos a crear un middleware simple que imprima en la consola cada petición que llega a nuestro servidor.
+
+```js
+// mi-logger.js
+const logger = (req, res, next) => {
+  console.log(`Petición Recibida: ${req.method} en la ruta ${req.originalUrl}`);
+  
+  // ¡Crucial! Llamamos a next() para que la petición pueda continuar su viaje.
+  next(); 
+};
+ 
+// server.js
+const logger = require('./mi-logger.js');
+// ...
+app.use(logger); // Lo aplicamos globalmente. Se ejecutará para CADA petición.
+```
+
+==== Ejemplo 2: un "guardia" de autenticación (middleware a nivel de ruta)
+Ahora, un middleware más complejo que protegerá una ruta específica. Solo permitirá el acceso si la petición incluye un "token" secreto en los encabezados.
+
+```js
+// auth-guard.js
+const authGuard = (req, res, next) => {
+  // Obtenemos el valor del encabezado 'authorization'
+  const tokenRecibido = req.headers['authorization'];
+ 
+  if (tokenRecibido === 'muebles123') {
+    // El token es correcto. Añadimos información al objeto req y continuamos.
+    req.usuario = { id: 1, rol: 'admin' };
+    next(); // ¡Permitimos el paso!
+  } else {
+    // El token es incorrecto o no existe.
+    // Enviamos una respuesta de error y NO llamamos a next().
+    res.status(401).json({ mensaje: 'Acceso no autorizado.' });
+  }
+};
+ 
+// server.js
+const authGuard = require('./auth-guard.js');
+// ...
+ 
+// Esta ruta es pública y no usa el middleware.
+app.get('/api/productos', (req, res) => { /* ... */ });
+ 
+// Esta ruta ESTÁ PROTEGIDA. Pasamos el middleware antes del controlador final.
+app.get('/api/admin/panel', authGuard, (req, res) => {
+  // Si llegamos aquí, es porque authGuard llamó a next().
+  // Podemos acceder a la información que el middleware añadió a req.
+  res.send(`Bienvenido al panel de admin, usuario con ID: ${req.usuario.id}`);
+});
+```
+*Para probar la ruta protegida*, necesitarás una herramienta como Postman o Thunder Client para añadir el encabezado Authorization con el valor muebles123 a tu petición GET.
+
+=== Puntos clave sobre middleware
+- *El Orden Importa:* Express ejecuta los middlewares en el orden en que se definen en el código.
+- *Global vs. Específico:* app.use(miMiddleware) lo aplica a todas las rutas que vengan después. Pasarlo como argumento a una ruta (ej: app.get('/', miMiddleware, ...)), lo aplica solo a esa ruta.
+- *La Misión de next():* Es la clave para que la cadena continúe. Si un middleware no envía una respuesta ni llama a next(), la petición del cliente quedará esperando para siempre.
+
+== Rutas y Errores
+=== Organización de rutas con express.Router (el archivador)
+*El Problema:* Tener todas las rutas (app.get, app.post, etc.) para usuarios, productos, y pedidos en un solo archivo es un caos.
+
+*La Solución:* express.Router nos permite actuar como si tuviéramos un *archivador con cajones etiquetados*. Creamos un "cajón" (un archivo) para cada tipo de recurso (usuarios, productos) y guardamos sus "documentos" (rutas) ahí. Nuestro server.js se mantiene limpio, actuando como la oficina principal que simplemente sabe a qué cajón dirigir cada solicitud.
+
+==== Paso a paso: creando un módulo de rutas
+*Paso 1: Crear el "Cajón" (El Archivo de Rutas)* En la raíz de tu proyecto, crea una carpeta routes. Dentro, crea el archivo userRoutes.js.
+
+*Paso 2: Guardar los "Documentos" en el Cajón (Definir las Rutas)* Dentro de userRoutes.js, usamos una instancia de Router en lugar de app.
+
+*routes/userRoutes.js*
+```js
+const express = require('express');
+const router = express.Router(); // ¡Creamos una instancia de Router!
+ 
+// Datos de ejemplo
+const users = [{ id: 1, name: 'Ana' }, { id: 2, name: 'Luis' }];
+ 
+// GET /api/users/  (la ruta es relativa al punto de montaje)
+router.get('/', (req, res) => {
+  res.json(users);
+});
+ 
+// GET /api/users/:id
+router.get('/:id', (req, res) => {
+  const user = users.find(u => u.id === parseInt(req.params.id));
+  if (!user) {
+    return res.status(404).json({ message: 'Usuario no encontrado' });
+  }
+  res.json(user);
+});
+ 
+// POST /api/users/
+router.post('/', (req, res) => {
+    // ... lógica para crear un usuario ...
+    res.status(201).json({ message: 'Usuario creado' });
+});
+ 
+// 3. Exportamos el router para que la app principal pueda usarlo
+module.exports = router;
+```
+*Paso 3: Colocar el "Cajón" en la Oficina (Montar el Router en server.js)* Ahora, en nuestro archivo principal, importamos y "montamos" el router.
+
+*server.js*
+```js
+const express = require('express');
+const app = express();
+ 
+// Importamos nuestro nuevo módulo de rutas
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes'); // (Haríamos lo mismo para productos)
+ 
+app.use(express.json());
+ 
+// Le decimos a la app: "Para cualquier ruta que empiece con /api/users,
+// deja que el 'userRoutes' se encargue".
+app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+ 
+// ... resto del código del servidor ...
+```
+¡Listo! Ahora tu server.js está limpio y tus rutas perfectamente organizadas por recurso.
+
+=== Manejo de errores centralizado
+*El Problema:* Repetir bloques try...catch en cada controlador es tedioso y propenso a errores. Si se nos olvida uno, el servidor puede crashear.
+
+*La Solución:* Crear un *middleware de manejo de errores* centralizado.
+
+*Analogía:* En lugar de que cada habitación tenga su propio extintor de incendios (que podría o no funcionar), tienes un *equipo de bomberos profesional* (errorHandler) que es llamado automáticamente cada vez que suena una alarma (error) en cualquier parte del edificio.
+
+==== ¿Cómo Funciona?
+Express reconoce un middleware de manejo de errores por su firma única de *cuatro argumentos*: (err, req, res, next). Cuando llamas a next(unError), Express se salta todos los demás middlewares y va directamente a este "equipo de emergencias".
+
+*¡Debe ser el último app.use() que definas en tu server.js!*
+
+==== Implementación práctica
+*Paso 1: Modificar los Controladores para que "Tiren de la Alarma"* En nuestras rutas, en lugar de manejar el error ahí mismo, se lo pasamos a next().
+
+*routes/userRoutes.js (extracto)*
+```js
+router.get('/:id', (req, res, next) => { // Observa el 'next' aquí
+  const user = users.find(u => u.id === parseInt(req.params.id));
+  
+  if (!user) {
+    const error = new Error('Usuario no encontrado');
+    error.status = 404;
+    return next(error); // ¡Llamamos a los bomberos!
+  }
+  
+  res.json(user);
+});
+```
+
+*Paso 2: Crear el Middleware para Rutas No Encontradas (404)* Justo antes de tu manejador de errores final, puedes poner un "atrapa-todo" para las rutas que no existen.
+
+*server.js*
+```js
+// ... después de montar todas tus rutas ...
+app.use((req, res, next) => {
+  const error = new Error(`Ruta no encontrada: ${req.originalUrl}`);
+  error.status = 404;
+  next(error); // Se lo pasamos a nuestro manejador de errores central
+});
+```
+*Paso 3: Definir el Manejador de Errores Centralizado* Este es nuestro "cuartel de bomberos". Recibe todos los errores y decide cómo responder al cliente.
+
+*server.js (al final del archivo)*
+```js
+// Este middleware SIEMPRE va al final.
+app.use((err, req, res, next) => {
+  // Determinamos el código de estado. Si el error no tiene uno, es un 500 (Error Interno del Servidor).
+  const statusCode = err.status || 500;
+  
+  // Logueamos el error en la consola del servidor para depuración
+  console.error(err.message, err.stack);
+  
+  // Enviamos una respuesta JSON clara al cliente
+  res.status(statusCode).json({
+    message: err.message || 'Ha ocurrido un error en el servidor.',
+    // Solo mostramos el detalle del error si no estamos en producción
+    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+  });
+});
+```
