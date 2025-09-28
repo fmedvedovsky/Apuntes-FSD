@@ -2147,3 +2147,651 @@ app.use((err, req, res, next) => {
   });
 });
 ```
+
+= React
+== ¿Qué es React?
+*React* es una *biblioteca de JavaScript* de código abierto creada por Facebook (ahora Meta) para hacernos la vida más fácil.
+
+Según la documentación oficial de React.dev: "React es una biblioteca de JavaScript para renderizar interfaces de usuario (UI)".
+
+En palabras simples, React nos da un conjunto de herramientas y "bloques" pre-fabricados para construir interfaces de usuario modernas, interactivas y rápidas. 
+No es un framework completo (como Angular), sino una librería enfocada en una sola cosa: construir la UI. 
+Esto le da una gran flexibilidad.
+
+== ¿Por qué usar React?
+
+1. Arquitectura basada en Componentes (Como construir con LEGOs)
+
+Piensa en una página web como una construcción de LEGOs. En lugar de tener un bloque gigante y monolítico, tienes un montón de piezas pequeñas y reutilizables: un ladrillo para el botón, otro para la barra de navegación, otro para una tarjeta de perfil, etc.
+
+En React, estas piezas de LEGO son los *Componentes*.
+
+Un *componente* es una pieza de código independiente y reutilizable que controla una parte de la interfaz. Encapsula su propia lógica (JavaScript), su estructura (HTML-like) y sus estilos (CSS).
+
+*Ventajas:*
+- *Reutilizabilidad:* ¿Necesitas otro botón igual en otra parte de la página? ¡Solo reutilizas el componente!
+- *Mantenimiento sencillo:* Si algo falla en la barra de navegación, sabes exactamente a qué "pieza" o componente ir, sin tener que revisar todo el código de la página.
+- *Organización:* Tu proyecto estará mucho más ordenado y será más fácil de entender.
+
+Por ejemplo, una página de inicio podría estar compuesta por:
+
+```jsx
+<Navbar />
+<Sidebar />
+<Feed />
+<Post />
+<Post />
+<Post />
+<Footer />
+```
+2. El Virtual DOM (El gemelo rápido del DOM)
+Para entender esto, recuerden qué es el *DOM (Document Object Model)*. El DOM es la representación en forma de árbol de todos los elementos de tu página HTML. Cuando quieres cambiar algo en la pantalla (ej: cambiar el texto de un botón), tienes que manipular el DOM.
+
+El problema es que manipular el DOM "real" es un proceso *lento y costoso* para el navegador. Imagina que para cambiar el color de una ventana en un edificio, tuvieras que demoler y reconstruir toda la pared. ¡Ineficiente!
+
+Aquí es donde React saca su magia: el *Virtual DOM*.
+
+- *Copia Ligera:* React mantiene una copia del DOM en memoria, una versión virtual y ligera.
+- *Cambios en la Copia:* Cuando el estado de un componente cambia (por ejemplo, haces clic en "Me Gusta"), React no toca el DOM real. Primero, actualiza el *Virtual DOM*.
+- *Comparación Inteligente:* Luego, compara esta nueva versión del Virtual DOM con la versión anterior (antes del cambio). A este proceso se le llama *"diferenciación" o "diffing"*.
+- *Actualización Quirúrgica:* React calcula la forma más eficiente y rápida de hacer esos cambios en el DOM real. En lugar de reconstruir toda la pared, le dice al navegador: "Oye, solo cambia el color de este div específico".
+- *El resultado:* Una actualización de la interfaz súper rápida y eficiente, lo que se traduce en una experiencia de usuario fluida y sin interrupciones.
+
+== Ejemplo con create-react-app
+
+1. *Ejecuta el comando de creación*
+
+```sh
+npx create-react-app client
+```
+*npx:* Es un ejecutor de paquetes de npm. Te permite usar un paquete (en este caso, create-react-app) sin tener que instalarlo permanentemente en tu computadora.
+
+*create-react-app:* Es el nombre del paquete que crea la estructura del proyecto React.
+
+*client:* Este es el nombre que le daremos a la carpeta de nuestro proyecto. En una aplicación MERN, es una convención llamar client a la carpeta del frontend y server a la del backend.
+
+
+
+2. *Navega a la carpeta del proyecto*
+```sh
+cd client
+```
+
+3. *Inicia la aplicación*
+```sh
+npm start
+```
+*Dato extra:* el servidor de React tiene hot-reloading, lo que significa que cada vez que guardes un cambio en tu código, la página en el navegador se actualizará sola.
+
+== JSX
+=== ¿Qué es JSX?
+*JSX* significa *JavaScript XML*. Es una extensión de la sintaxis de JavaScript que nos permite escribir código similar a HTML directamente en nuestros archivos de JavaScript.
+
+La documentación oficial lo describe así: "JSX es una extensión de sintaxis para JavaScript que te permite escribir marcado similar a HTML dentro de un archivo de JavaScript".
+
+Piensa en JSX como un traductor. Escribimos algo que se parece mucho a HTML porque es súper intuitivo para describir cómo se debe ver una interfaz. Luego, una herramienta llamada *Babel* (que ya viene configurada en nuestro proyecto) lo traduce a código JavaScript puro que el navegador sí puede entender.
+
+*Antes de JSX:*
+
+```js
+const element = <h1 className="greeting">¡Hola, equipo!</h1>;
+```
+
+*Después con JSX:*
+```js
+const element = React.createElement(
+  'h1',
+  {className: 'greeting'},
+  '¡Hola, equipo!'
+);
+```
+
+=== Reglas y sintaxis de JSX
+==== Regla 1: ¡Solo un elemento raíz!
+Una expresión JSX *debe tener un único elemento padre*. No puedes devolver dos o más elementos "hermanos" al mismo nivel.
+
+Imagina que quieres devolver un título y un párrafo.
+
+*Incorrecto:*
+```js
+// Esto dará un error
+return (
+  <h1>Mi Título</h1>
+  <p>Mi párrafo.</p>
+)
+```
+Para solucionarlo, debes envolverlos en un elemento contenedor, como un div.
+
+*Correcto (usando un div):*
+```js
+return (
+  <div>
+    <h1>Mi Título</h1>
+    <p>Mi párrafo.</p>
+  </div>
+)
+```
+A veces, no quieres añadir un div extra a tu HTML solo para cumplir la regla. Para eso, React nos da los *Fragmentos (Fragment)*.
+
+*Correcto (usando un Fragmento):* Un fragmento te permite agrupar elementos sin añadir un nodo extra al DOM. ¡Es la forma más limpia!
+
+```js
+import React from 'react';
+ 
+// ...
+return (
+  <React.Fragment>
+    <h1>Mi Título</h1>
+    <p>Mi párrafo.</p>
+  </React.Fragment>
+)
+ 
+// O usando la sintaxis corta y más común de <> </>
+return (
+  <>
+    <h1>Mi Título</h1>
+    <p>Mi párrafo.</p>
+  </>
+)
+```
+
+=== Incrustando expresiones de JavaScript con {}
+Puedes "escapar" de vuelta a JavaScript en cualquier momento dentro de tu JSX usando llaves {}. 
+Esto te permite insertar variables, ejecutar funciones y mostrar datos dinámicos.
+
+1. *Usando variables:*
+```js
+const nombreUsuario = "Alex";
+// Usamos {nombreUsuario} para mostrar el valor de la variable.
+const saludo = <h1>Hola, {nombreUsuario}!</h1>; // El resultado será: <h1>Hola, Alex!</h1>
+```
+
+2. *Operaciones matemáticas:*
+```js
+const precio = 100;
+const iva = 0.21;
+const total = <p>Total a pagar: ${precio * (1 + iva)}</p>; // Muestra: <p>Total a pagar: $121</p>
+```
+
+3. *Llamando a una función:*
+```js
+const usuario = {
+  nombre: "María",
+  apellido: "García"
+};
+ 
+function nombreCompleto(user) {
+  return `${user.nombre} ${user.apellido}`;
+}
+ 
+// Llamamos a la función dentro de las llaves
+const bienvenida = <h2>Bienvenida, {nombreCompleto(usuario)}!</h2>; // Muestra: <h2>Bienvenida, María García!</h2>
+```
+
+=== Atributos en JSX: un pequeño cambio
+Los atributos en JSX son muy parecidos a los de HTML, pero con una diferencia clave: como JSX es JavaScript, usa la convención de nomenclatura *camelCase*.
+
+Además, algunas palabras de HTML son palabras reservadas en JavaScript, por lo que sus nombres cambian en JSX.
+
+Aquí los dos cambios más importantes que debes recordar:
+
+1. *class se convierte en className* En HTML usamos class para asignar clases CSS. En JavaScript, class es una palabra reservada para crear clases. Por eso, en JSX, usamos className.
+```js
+// En HTML: <div class="card">
+// En JSX:
+const miTarjeta = <div className="card">Contenido de la tarjeta</div>;
+```
+
+2. *for se convierte en htmlFor* Se usa en las etiquetas <label> para asociarlas a un <input>. Como for es la palabra reservada para los bucles, en JSX usamos htmlFor.
+```js
+// En HTML: <label for="email">Email</label>
+// En JSX:
+const emailLabel = <label htmlFor="email">Email</label>;
+```
+
+==== Asignando valores a los atributos
+
+Puedes asignar valores a los atributos de dos maneras:
+
++ *Con comillas (para valores estáticos o strings):*
+```js
+const imagen = <img src="/logo.png" alt="Logo de la empresa" />;
+```
+
++ *Con llaves (para valores dinámicos o expresiones de JavaScript):*
+```js
+const profilePicUrl = "https://i.imgur.com/7v10gu8.png";
+const altText = "Foto de perfil del usuario";
+ 
+const imagenPerfil = <img src={profilePicUrl} alt={altText} />;
+```
+
+=== Componentes funcionales y renderizado de elementos
+Un *Componente Funcional* es, literalmente, una función de JavaScript que devuelve JSX. 
+Es la forma estándar y moderna de crear esos "bloques" reutilizables para nuestra interfaz.
+
+==== Creando nuestro primer componente funcional
+Vamos a crear un componente simple que muestre un saludo.
+
+*Regla de Oro:* Los nombres de los componentes en React *siempre deben comenzar con una letra mayúscula*. 
+Así es como React diferencia entre una etiqueta HTML nativa (como `<div>` o `<p>`) y un componente que tú creaste (como `<Saludo />`).
+
+Dentro de la carpeta src de tu proyecto, crea un nuevo archivo llamado Saludo.js.
+
+Abre Saludo.js y escribe el siguiente código:
+
+```js
+// Saludo.js
+ 
+// Paso 1: Importar React (aunque no es 100% necesario en las versiones nuevas, es una buena práctica)
+import React from 'react';
+ 
+// Paso 2: Definir la función. ¡Recuerda la mayúscula inicial!
+function Saludo() {
+  // Paso 3: La función retorna el JSX que se mostrará en pantalla.
+  return <h1>¡Hola, futuros desarrolladores Fullstack! 👋</h1>;
+}
+ 
+// Paso 4: Exportar el componente para poder usarlo en otros archivos.
+export default Saludo;
+```
+¡Y ya está! Has creado tu primer componente funcional. Es una pieza de UI simple, aislada y reutilizable.
+
+==== Renderizado de elementos: ¿Cómo se muestra esto en pantalla?
+Crear un componente es como construir un mueble de IKEA. Lo tienes listo, pero ahora necesitas ponerlo en la habitación correcta para que la gente lo vea. Ese proceso de "ponerlo en la habitación" es el *renderizado*.
+
+El punto de entrada de toda nuestra aplicación React es el archivo src/index.js. Echemos un vistazo:
+
+```js
+// src/index.js
+ 
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // La librería para hablar con el DOM del navegador
+import App from './App'; // Importa el componente principal de nuestra app
+ 
+// 1. Apunta al <div> con id="root" en nuestro public/index.html
+const rootElement = document.getElementById('root');
+ 
+// 2. Crea el "portal" de renderizado de React en ese elemento
+const root = ReactDOM.createRoot(rootElement);
+ 
+// 3. Renderiza nuestro componente <App /> dentro de ese portal
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+*Analogía del Teatro:*
+
+- `public/index.html`: Es el teatro vacío, con un único escenario (`<div id="root"></div>`).
+
+- `src/index.js`: Es el director de la obra.
+
+- `ReactDOM.createRoot(...)`: Es el director eligiendo el escenario principal.
+
+- `root.render(<App />)`: Es la orden del director: "¡Que el actor principal, App, suba al escenario!".
+
+==== Componiendo componentes
+La verdadera magia de React es que podemos *componer* componentes, es decir, usar unos dentro de otros.
+
+Ahora vamos a usar nuestro componente `<Saludo />` dentro del componente principal `<App />`.
+
+Abre el archivo src/App.js.
+
+*Importa* tu nuevo componente en la parte superior del archivo.
+
+*Úsalo* dentro del JSX del componente App como si fuera una etiqueta HTML.
+
+```js
+// src/App.js
+ 
+import React from 'react';
+import logo from './logo.svg';
+import './App.css';
+import Saludo from './Saludo'; // <-- 1. IMPORTAMOS NUESTRO COMPONENTE
+ 
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        
+        {/* 2. USAMOS NUESTRO COMPONENTE */}
+        <Saludo />
+ 
+        <p>
+          ¡Estamos listos para empezar a construir!
+        </p>
+        
+        {/* ¡La reutilización es clave! Podemos usarlo cuantas veces queramos. */}
+        <Saludo />
+ 
+      </header>
+    </div>
+  );
+}
+ 
+export default App;
+```
+
+*¡Guarda los cambios y mira tu navegador!* Verás el mensaje de saludo de tu componente Saludo.js renderizado dos veces dentro de la aplicación principal.
+
+=== Componentes y props
+Repasemos rápidamente la *composición*. Es el acto de construir componentes más grandes y complejos a partir de otros más pequeños. Es el corazón de React.
+
+Vamos a usar un ejemplo práctico que nos acompañará en esta lección: una *galería de imágenes*.
+
+Si pensamos en una galería como la de Instagram o Pinterest, la estructura de componentes podría ser así:
+
+- `<App />`: El componente principal que contiene toda nuestra aplicación.
+- `<ImageGallery />`: Un componente que actúa como el contenedor principal de todas nuestras imágenes.
+- `<ImageCard />`: Un componente para mostrar *una sola imagen*, con su título y autor. Este es el que reutilizaremos una y otra vez.
+
+La composición aquí es clara: App renderiza a ImageGallery, y ImageGallery renderiza múltiples ImageCard.
+
+==== Props: pasando datos de padres a hijos
+Ahora mismo, si creamos nuestro componente `<ImageCard />` y lo usamos varias veces, tendremos un problema: *todas las tarjetas serán idénticas*.
+
+*El problema:*
+```js
+// ImageCard.js
+function ImageCard() {
+  const imageUrl = "https://i.imgur.com/7v10gu8.png";
+  const title = "Un Gato Genérico";
+  return (
+    <div>
+      <img src={imageUrl} alt={title} />
+      <h3>{title}</h3>
+    </div>
+  );
+}
+```
+Si en ImageGallery.js ponemos `<ImageCard />` tres veces, veremos tres gatos genéricos idénticos. ¡No es una galería muy interesante!
+
+Necesitamos una forma de que el componente padre (`<ImageGallery />`) le pase información al componente hijo (`<ImageCard />`), diciéndole: "Tú, muestra esta imagen y este título. Y tú, esta otra".
+
+Esa forma de comunicación son las *Props*.
+
+*Props* (abreviatura de "properties" o propiedades) son un objeto que permite pasar datos desde un componente padre a un componente hijo. Son la forma de "configurar" o "personalizar" un componente desde afuera.
+
+*La Analogía:* Piensa en un componente como una función de JavaScript.
+```js
+function saludar(nombre) {
+  return `Hola, ${nombre}`;
+}
+```
+La función saludar es siempre la misma, pero lo que devuelve cambia según el nombre que le pases como parámetro. *Las props son para los componentes de React lo que los parámetros son para las funciones de JavaScript.*
+
+===== ¿Cómo funcionan las Props?
+Es un proceso de 3 pasos:
+
+*Paso 1: Pasar las Props (en el componente Padre)* Desde el componente padre (ImageGallery), pasamos los datos al hijo como si fueran atributos de HTML.
+
+```js
+// ImageGallery.js
+import ImageCard from './ImageCard';
+ 
+function ImageGallery() {
+  return (
+    <div>
+      <h1>Mi Galería de Imágenes</h1>
+      <ImageCard 
+        imageUrl="https://i.imgur.com/7v10gu8.png" 
+        title="Gato en una caja" 
+      />
+      <ImageCard 
+        imageUrl="https://i.imgur.com/N6ESs61.jpeg" 
+        title="Perro con gafas" 
+      />
+    </div>
+  );
+}
+```
+
+*Paso 2: Recibir las Props (en el componente Hijo)* El componente hijo (ImageCard) recibe automáticamente todas esas "propiedades" en un único objeto como primer argumento de la función. Por convención, a este objeto lo llamamos props.
+```js
+// ImageCard.js - Recibiendo el objeto props
+function ImageCard(props) {
+  // Si hacemos console.log(props), veríamos:
+  // Para el primer gato: { imageUrl: "...", title: "Gato en una caja" }
+  // Para el segundo perro: { imageUrl: "...", title: "Perro con gafas" }
+  
+  // ...
+}
+```
+
+*Paso 3: Usar las Props (en el componente Hijo)* Ahora, dentro del componente hijo, podemos acceder a los datos usando la sintaxis de punto (props.nombreDeLaProp) para renderizar la información correcta.
+```js
+// ImageCard.js - Versión final con props
+function ImageCard(props) {
+  return (
+    <div className="image-card">
+      <img src={props.imageUrl} alt={props.title} />
+      <h3>{props.title}</h3>
+    </div>
+  );
+}
+ 
+export default ImageCard;
+```
+
+*Pro Tip - Destructuración:* Para un código más limpio, puedes "desestructurar" el objeto props directamente en los parámetros de la función. ¡Es la forma más común de hacerlo hoy en día!
+```js
+// ImageCard.js - Versión con desestructuración
+function ImageCard({ imageUrl, title }) {
+  return (
+    <div className="image-card">
+      <img src={imageUrl} alt={title} />
+      <h3>{title}</h3>
+    </div>
+  );
+}
+```
+¡Y listo! Ahora nuestro componente ImageCard es un "bloque" verdaderamente reutilizable y dinámico. El padre (ImageGallery) tiene el control total sobre lo que muestra cada tarjeta hija.
+
+Las *props son de solo lectura*. Un componente hijo nunca debe modificar las props que recibe. Son como un mandato del padre que el hijo debe obedecer, no cambiar. En la próxima sección, veremos cómo un componente puede manejar su propia información interna que sí puede cambiar, usando el *Estado (State)*.
+
+=== Estado: la memoria interna de un componente
+
+==== ¿Qué es el estado?
+El *Estado* es un objeto que representa las partes de la aplicación que pueden cambiar. Es la memoria interna de un componente. Cada vez que el estado de un componente cambia, React lo vuelve a renderizar automáticamente para reflejar ese cambio en la pantalla.
+
+==== El hook useState
+Para añadir estado a nuestros componentes funcionales, React nos da una herramienta especial llamada *Hook*.
+
+Los *Hooks* son funciones especiales que te permiten "engancharte" a las características de React, como el estado y el ciclo de vida, desde tus componentes funcionales.
+
+El hook más fundamental es useState.
+
+*Cómo se usa:*
+
+Primero, lo importamos desde React:
+```js
+import React, { useState } from 'react';
+```
+
+Luego, lo declaramos dentro de nuestro componente. useState nos devuelve un array con dos elementos:
+
+1. La *variable de estado* (el valor actual).
+2. La *función para actualizar ese estado*.
+
+Usamos la "desestructuración de arrays" de JavaScript para asignarlos a variables:
+```js
+const [valorDelEstado, funcionParaActualizar] = useState(valorInicial);
+```
+
+- *valorDelEstado*: Contiene el valor actual del estado. Lo usas para mostrarlo en tu JSX.
+- *funcionParaActualizar*: Es la única función que debes usar para modificar el estado. Cuando la llamas, le dices a React que el estado ha cambiado y que necesita volver a renderizar el componente.
+- *valorInicial*: Es el valor que tendrá el estado la primera vez que el componente se renderiza.
+
+*Analogía del Marcador de Puntos:* Imagina un marcador de básquet.
+- El valorInicial es 0 al empezar el partido.
+- El valorDelEstado es el número que ves en el marcador en cualquier momento (puntos).
+- La funcionParaActualizar es la acción del operador que presiona el botón para sumar puntos (setPuntos). No puedes simplemente gritarle al marcador que cambie; tienes que usar el control oficial.
+
+=== Manejo de eventos: reaccionando a los clics
+Para que nuestro estado cambie, necesitamos responder a las acciones del usuario, como hacer clic en un botón, escribir en un campo, etc. Para esto usamos los *manejadores de eventos (event handlers).*
+
+El más común es onClick. En JSX, los manejadores de eventos se escriben en camelCase (ej. onClick, onChange, onSubmit).
+
+Le pasamos una función que se ejecutará cuando ocurra el evento.
+
+```js
+<button onClick={aquiVaLaFuncion}>Haz Clic</button>
+```
+
+==== Ejemplo Práctico: "Character Points"
+Vamos a juntar useState y onClick para crear un componente que lleve la cuenta de los puntos de un personaje, como en un videojuego.
+
++ Crea un nuevo archivo CharacterPoints.js.
++ Escribe el siguiente código:
+```js
+// CharacterPoints.js
+ 
+import React, { useState } from 'react';
+ 
+function CharacterPoints() {
+  // 1. Declaramos nuestro estado. Empezará en 0.
+  const [puntos, setPuntos] = useState(0);
+ 
+  // 2. Creamos una función para manejar el clic del botón.
+  const aumentarPuntos = () => {
+    // 3. Usamos la función del estado para actualizar el valor.
+    // Le decimos que el nuevo valor será el valor anterior + 1.
+    setPuntos(puntos + 1);
+  };
+ 
+  // ¡NUNCA hagas esto! No se puede mutar el estado directamente.
+  // puntos = puntos + 1; // ¡INCORRECTO! React no se enteraría del cambio.
+ 
+  return (
+    <div className="character-card">
+      <h2>Puntos del Personaje</h2>
+      {/* 4. Mostramos el valor actual del estado. */}
+      <h1>{puntos}</h1>
+      
+      {/* 5. Asignamos nuestra función al evento onClick del botón. */}
+      <button onClick={aumentarPuntos}>
+        +1 Punto
+      </button>
+    </div>
+  );
+}
+ 
+export default CharacterPoints;
+```
+
+*¿Qué sucede aquí?*
+
++ El componente se renderiza por primera vez. puntos es 0.
++ El usuario hace clic en el botón.
++ Se ejecuta el evento onClick, que llama a la función aumentarPuntos.
++ Dentro de aumentarPuntos, llamamos a setPuntos(puntos + 1).
++ setPuntos le avisa a React: "¡Oye, el estado cambió! El nuevo valor de puntos es 1".
++ React vuelve a renderizar el componente CharacterPoints. Esta vez, cuando lee la variable puntos, su valor es 1, y eso es lo que muestra en la pantalla.
+
+Este ciclo (Acción del Usuario -> Evento -> Actualizar Estado -> Re-renderizado) es el motor de toda la interactividad en React.
+
+=== Renderizado condicional
+No siempre queremos mostrar todo en la pantalla todo el tiempo. A veces, una parte de la UI solo debe aparecer si se cumple una condición. Por ejemplo, mostrar un mensaje de "Cargando..." mientras se obtienen datos.
+
+Esto se llama *Renderizado Condicional*. Hay varias formas de hacerlo en React.
+
+1. *Operador Ternario (condicion ? esto_si_es_verdad : esto_si_es_falso)*
+Esta es la forma más común y concisa para un if/else simple directamente en tu JSX. Es perfecto para alternar entre dos cosas.
+
+*Ejemplo Práctico: Un botón para mostrar/ocultar un mensaje.*
+```js
+// SpoilerAlert.js
+import React, { useState } from 'react';
+ 
+function SpoilerAlert() {
+  const [isVisible, setIsVisible] = useState(false);
+ 
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible); // Cambia el valor a su opuesto (true -> false, false -> true)
+  };
+ 
+  return (
+    <div>
+      <button onClick={toggleVisibility}>
+        {/* Cambiamos el texto del botón según la condición */}
+        {isVisible ? 'Ocultar Mensaje' : 'Mostrar Mensaje'}
+      </button>
+ 
+      {/* Aquí la magia: Si isVisible es true, muestra el <p>. Si no, no muestra nada (null) */}
+      {isVisible ? <p>¡React es increíble!</p> : null}
+    </div>
+  );
+}
+```
+
+2. *Operador Lógico && ("Y")*
+Esta es una forma aún más corta si solo te importa la condición verdadera. Si la condición es false, no se renderiza nada. Funciona porque en JavaScript, true && expresion siempre resulta en expresion, y false && expresion siempre resulta en false (y React no renderiza false).
+
+Es ideal para "mostrar esto O no mostrar nada".
+```js
+// Notification.js
+function Notification({ messageCount }) {
+  return (
+    <div>
+      <h2>Notificaciones</h2>
+      {/* La siguiente línea solo se renderizará si messageCount es mayor a 0 */}
+      {messageCount > 0 &&
+        <p>¡Tienes {messageCount} mensajes sin leer!</p>
+      }
+    </div>
+  );
+}
+```
+
+=== Listas y claves (key): renderizando colecciones de datos
+Es muy raro que una aplicación muestre un solo elemento. Lo normal es mostrar una lista de productos, una lista de amigos, una galería de imágenes, etc.
+
+No vamos a escribir el código para cada elemento de la lista a mano. En su lugar, usamos el método .map() de JavaScript para transformar un array de datos en un array de componentes de React.
+
+*El Problema:* ¿Cómo sabe React qué elemento es cuál si la lista cambia? Si borras el segundo elemento de una lista de diez, ¿cómo sabe React que no debe borrar el segundo, sino mover todos los demás hacia arriba?
+
+La respuesta es la prop especial *key*.
+
+La prop *key* es un identificador único y estable que le das a cada elemento dentro de una lista. Ayuda a React a identificar qué elementos han cambiado, se han agregado o se han eliminado, optimizando el rendimiento de forma masiva.
+
+==== Reglas para las key
++ Deben ser *únicas* entre sus hermanos en la misma lista.
++ Deben ser *estables*. No deben cambiar entre renderizados.
++ Lo ideal es usar un *ID único* que venga de tus datos (ej: producto.id de la base de datos). Usar el índice del array (index) solo se recomienda como último recurso para listas estáticas que nunca cambiarán.
+
+==== Ejemplo práctico: una lista de tareas (To-Do List)
+```js
+// TodoList.js
+import React from 'react';
+ 
+// 1. Nuestros datos: un array de objetos. Cada uno tiene un ID único.
+const tareas = [
+  { id: 't-01', texto: 'Aprender sobre Props' },
+  { id: 't-02', texto: 'Practicar con useState' },
+  { id: 't-03', texto: 'Dominar las Listas y Claves' }
+];
+ 
+function TodoList() {
+  return (
+    <div>
+      <h2>Mis Tareas Pendientes</h2>
+      <ul>
+        {/* 2. Usamos .map() para iterar sobre nuestros datos */}
+        {tareas.map(tarea => (
+          // 3. Por cada elemento, devolvemos un <li>.
+          // ¡Le asignamos la 'key' usando el ID único de la tarea!
+          <li key={tarea.id}>
+            {tarea.texto}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+ 
+export default TodoList;
+```
