@@ -3051,3 +3051,342 @@ fetch('/api/usuarios')
 El servidor de desarrollo de React verá esta petición, notará la configuración del proxy, y la redirigirá automáticamente a http://localhost:5000/api/usuarios por ti.
 
 Con esto, te puedes olvidar de los problemas de CORS durante todo el desarrollo y enfocarte en construir tu aplicación.
+
+= React Router DOM
+== Introducción
+React Router DOM nos permite sincronizar la interfaz de usuario (lo que vemos) con la URL en el navegador. No recarga la página, sino que intercepta los cambios de URL y renderiza los componentes de React correspondientes, dando la ilusión de una navegación tradicional pero con la velocidad y fluidez de una SPA.
+
+Para empezar, primero debemos instalarla en nuestro proyecto:
+```sh
+npm install react-router-dom
+```
+
+== Componentes fundamentales
+=== BrowserRouter
+Piensa en BrowserRouter como el *director de orquesta* de todo el sistema de ruteo. Se encarga de escuchar los cambios en la URL del navegador y de comunicar esa información al resto de tu aplicación.
+
+Debes envolver toda tu aplicación (o al menos toda la parte que necesite ruteo) con este componente. El lugar más común para ponerlo es en tu archivo src/index.js, rodeando al componente `<App />`.
+
+```js
+// src/index.js
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+ 
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
+```
+
+=== Routes (anteriormente Switch)
+El componente `<Routes>` actúa como un *contenedor o controlador de tráfico* para tus rutas. Su trabajo es mirar la URL actual y renderizar *solo la primera `<Route>` que coincida*.
+
+*Nota histórica*: En versiones anteriores de la librería (v5 y previas), este componente se llamaba `<Switch>`. Si ves tutoriales antiguos, no te confundas. En la v6 y posteriores (que es la que usamos), se llama `<Routes>`.
+
+=== Route
+Un componente `<Route>` es la regla de ruteo individual. Es donde defines la conexión entre una ruta en la URL y el componente de React que debe mostrarse.
+
+Sus dos props más importantes son:
+- path: Un string que define el patrón de la URL (ej: "/contacto").
+- element: El componente de React que se renderizará cuando la URL coincida con el path (ej: {`<PaginaDeContacto />`}).
+
+```js
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+ 
+function App() {
+  return (
+    <div>
+      {/* ... aquí iría la barra de navegación ... */}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+      </Routes>
+    </div>
+  );
+}
+```
+
+=== Link
+El componente `<Link>` es la forma correcta de crear *enlaces de navegación* dentro de tu aplicación. Aunque en el HTML final se renderiza como una etiqueta `<a>`, tiene un súper-poder: *evita la recarga completa de la página*.
+
+Si usaras un `<a href="/about">`, el navegador haría una petición al servidor y recargaría todo, perdiendo la velocidad de la SPA. En cambio, `<Link>` simplemente le avisa a React Router que la URL ha cambiado para que este pueda renderizar el componente correcto sin refrescar la página.
+
+- Usa la prop to para especificar la ruta de destino.
+```js
+import { Link } from 'react-router-dom';
+ 
+function Navigation() {
+  return (
+    <nav>
+      <Link to="/">Inicio</Link>
+      <Link to="/about">Sobre Nosotros</Link>
+      <Link to="/productos">Productos</Link>
+    </nav>
+  );
+}
+```
+
+== La estructura de una aplicación "multi-página"
+Antes de escribir código, organicemos nuestro proyecto. Una buena estructura nos facilitará la vida. Dentro de tu carpeta src, es una excelente práctica crear dos nuevos directorios:
+
+- src/pages: Aquí vivirán los componentes que representan una "página" completa, como la página de inicio, la de contacto, etc.
+- src/components: Aquí guardaremos los componentes reutilizables que pueden aparecer en varias páginas, como una barra de navegación, un footer, un botón, etc.
+
+=== Paso a paso: construyendo la navegación
+
+Asumiremos que ya tienes react-router-dom instalado y tu App.js envuelto en `<BrowserRouter>` dentro de index.js, como vimos en la lección anterior.
+
+==== Paso 1: crear nuestras "páginas"
+Vamos a crear tres componentes muy simples que simularán ser nuestras páginas.
+
+*src/pages/HomePage.js*
+```js
+import React from 'react';
+ 
+function HomePage() {
+  return (
+    <div>
+      <h1>Página de Inicio</h1>
+      <p>¡Bienvenido a nuestra increíble aplicación!</p>
+    </div>
+  );
+}
+ 
+export default HomePage;
+```
+
+*src/pages/AboutPage.js*
+```js
+import React from 'react';
+ 
+function AboutPage() {
+  return (
+    <div>
+      <h1>Sobre Nosotros</h1>
+      <p>Somos un equipo apasionado por el desarrollo web.</p>
+    </div>
+  );
+}
+ 
+export default AboutPage;
+```
+
+*src/pages/DashboardPage.js*
+```js
+import React from 'react';
+ 
+function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard del Usuario</h1>
+      <p>Aquí verías tu información personal.</p>
+    </div>
+  );
+}
+ 
+export default DashboardPage;
+```
+
+==== Paso 2: crear la barra de navegación
+Ahora, crearemos un componente reutilizable para los enlaces de navegación.
+
+*src/components/Navbar.js*
+```js
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Navbar.css'; // Opcional: para darle un poco de estilo
+ 
+function Navbar() {
+  return (
+    <nav className="navbar">
+      <Link to="/">Inicio</Link>
+      <Link to="/about">Sobre Nosotros</Link>
+      <Link to="/dashboard">Dashboard</Link>
+    </nav>
+  );
+}
+ 
+export default Navbar;
+```
+
+==== Paso 3: unir todo en App.js
+Este es el paso final donde ensamblamos nuestra aplicación. App.js actuará como el "diseño principal" o layout de nuestra página.
+
+*src/App.js*
+
+```js
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+ 
+// Importamos nuestros componentes y páginas
+import Navbar from './components/Navbar';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import DashboardPage from './pages/DashboardPage';
+ 
+function App() {
+  return (
+    <div className="App">
+      {/* La barra de navegación estará visible en todas las "páginas" */}
+      <Navbar />
+ 
+      <main>
+        {/* El contenido principal que cambiará según la URL */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+ 
+export default App;
+```
+
+= Manejo de formularios y envío de datos a la API
+
+Llegamos a una de las tareas más comunes y cruciales en el desarrollo frontend: manejar formularios y enviar los datos que el usuario ingresa a un servidor. React tiene una forma particular y muy potente de gestionar formularios, conocida como *"Componentes Controlados"*.
+
+== Componentes controlados: React al mando
+En el HTML tradicional, los elementos de un formulario como <input>, <textarea>, y <select> mantienen su propio estado internamente en el DOM. Escribes en un input y el DOM guarda ese valor.
+
+React, sin embargo, prefiere tener el control total. Un *componente controlado* es un elemento de formulario cuyo valor es controlado por el estado de React.
+
+En lugar de que el DOM "posea" los datos del input, el *estado del componente React se convierte en la única fuente de verdad*.
+
+Para lograr esto, necesitamos conectar dos cosas:
++ La prop value: Forzamos al input a mostrar el valor que está en nuestro estado de React.
++ El evento onChange: Cada vez que el usuario escribe algo, este evento se dispara y usamos su función para actualizar nuestro estado de React.
+
+=== El ciclo de un componente controlado
++ El usuario escribe una letra en el `<input>`.
++ El evento onChange se dispara.
++ La función del onChange llama a setMiEstado() con el nuevo valor.
++ React re-renderiza el componente.
++ El `<input>` recibe el nuevo estado a través de su prop value y se actualiza en la pantalla.
+
+Parece un camino largo para algo tan simple como escribir en un campo, pero le da a React un control absoluto, permitiéndonos validar, formatear o manipular los datos en tiempo real.
+
+=== Ejemplo con un solo input
+```js
+function NombreForm() {
+  const [nombre, setNombre] = useState(''); // 1. Estado para el valor
+ 
+  return (
+    <input
+      type="text"
+      value={nombre} // 2. El valor del input está "atado" al estado
+      onChange={(e) => setNombre(e.target.value)} // 3. onChange actualiza el estado
+    />
+  );
+}
+```
+
+=== Manejando un formulario completo
+Normalmente un formulario tiene más de un campo. En lugar de crear un useState para cada uno, es una práctica común usar un *único objeto en el estado* para todos los datos del formulario.
+
+Para actualizar este objeto de forma genérica, podemos darle a cada input un atributo name que coincida con la clave que queremos actualizar en nuestro objeto de estado.
+
+```js
+// RegistrationForm.js
+import React, { useState } from 'react';
+ 
+function RegistrationForm() {
+  // Un solo estado para todo el formulario
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+ 
+  // Un solo manejador de cambios para todos los inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target; // Obtenemos el nombre y el valor del input que cambió
+    setFormData(prevState => ({
+      ...prevState, // Copiamos el estado anterior
+      [name]: value // Sobrescribimos solo el campo que cambió
+    }));
+  };
+ 
+  // ... el resto del componente
+```
+
+=== Envío de datos a la API (onSubmit)
+Una vez que tenemos los datos del formulario en nuestro estado, el paso final es enviarlos al backend cuando el usuario presiona el botón de "Enviar".
+
+Esto se maneja con el evento onSubmit del elemento `<form>`. Usar onSubmit en el formulario (en lugar de onClick en el botón) es mejor porque también funciona si el usuario presiona la tecla "Enter".
+
+==== Paso a paso dentro del componente RegistrationForm
+```js
+// ... continuación de RegistrationForm.js
+ 
+  const handleSubmit = async (event) => {
+    // 1. Prevenimos el comportamiento por defecto del formulario (recargar la página)
+    event.preventDefault();
+ 
+    // 2. Aquí va la lógica para enviar los datos
+    console.log("Datos a enviar:", formData);
+ 
+    try {
+      const response = await fetch('https://api.ejemplo.com/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData), // 3. Enviamos el estado del formulario
+      });
+ 
+      if (!response.ok) {
+        throw new Error('El registro falló.');
+      }
+ 
+      const result = await response.json();
+      alert(`¡Registro exitoso para ${result.username}!`);
+      // Opcional: limpiar el formulario después del envío
+      setFormData({ username: '', email: '', password: '' });
+ 
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+ 
+  return (
+    // 4. Conectamos nuestro manejador al evento onSubmit del form
+    <form onSubmit={handleSubmit}>
+      <h3>Formulario de Registro</h3>
+      <input
+        type="text"
+        name="username" // El 'name' debe coincidir con la clave en el estado
+        value={formData.username}
+        onChange={handleChange}
+        placeholder="Nombre de usuario"
+      />
+      <input
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="Correo electrónico"
+      />
+      <input
+        type="password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        placeholder="Contraseña"
+      />
+      <button type="submit">Registrarse</button>
+    </form>
+  );
+}
+```
