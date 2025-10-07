@@ -2795,3 +2795,259 @@ function TodoList() {
  
 export default TodoList;
 ```
+
+=== useEffect
+Un *efecto secundario (side effect)* es cualquier cosa que tu componente haga que afecte al mundo exterior, fuera de su propio renderizado. Las llamadas a APIs, las suscripciones, o la manipulación directa del DOM son efectos secundarios.
+
+useEffect nos permite ejecutar código después de que el componente se haya renderizado, dándonos control sobre cuándo se ejecuta ese efecto.
+
+*La sintaxis clave:*
+```js
+useEffect(() => {
+  // El código del efecto secundario (nuestra llamada a la API) va aquí.
+}, [/* array de dependencias */]);
+```
+El *array de dependencias* es crucial:
+- [] *(array vacío)*: El efecto se ejecuta *una sola vez*, justo después del primer renderizado. Perfecto para buscar los datos iniciales que necesita el componente.
+- [variable1, variable2]: El efecto se ejecuta la primera vez y luego se volverá a ejecutar *solo si alguna de las variables del array cambia.*
+- *Sin array (omitido)*: El efecto se ejecuta después de *cada renderizado*. ¡Cuidado con los bucles infinitos!
+
+==== Ejemplo práctico
+Vamos a juntar todo: useState para guardar los datos, useEffect para ejecutar la llamada y fetch con async/await para obtenerlos.
+
+```js
+// UserList.js
+import React, { useState, useEffect } from 'react';
+ 
+function UserList() {
+  // 1. Estado para guardar la lista de usuarios. Inicialmente es un array vacío.
+  const [users, setUsers] = useState([]);
+ 
+  // 2. useEffect para buscar los datos cuando el componente se monta.
+  useEffect(() => {
+    // 3. Definimos una función asíncrona dentro del efecto.
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+        const data = await response.json();
+        setUsers(data); // 4. Guardamos los datos recibidos en nuestro estado.
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+ 
+    fetchUsers(); // 5. Llamamos a la función.
+  }, []); // <-- El array vacío asegura que esto se ejecute solo una vez.
+ 
+  return (
+    <div>
+      <h1>Lista de Usuarios</h1>
+      <ul>
+        {/* 6. Mapeamos el estado 'users' para renderizar la lista. */}
+        {users.map(user => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+ 
+export default UserList;
+```
+
+=== Manejo de estados de carga y error
+En el ejemplo anterior, mientras los datos se cargaban, el usuario veía una pantalla en blanco. Y si ocurría un error, la pantalla se quedaba en blanco para siempre sin ninguna explicación. ¡Eso no es una buena experiencia de usuario (UX)!
+
+Una aplicación robusta debe manejar al menos tres estados al buscar datos:
++ loading: La petición está en curso.
++ error: Ocurrió un problema y no pudimos obtener los datos.
++ success: Tenemos los datos y podemos mostrarlos.
+
+Para manejar esto, añadiremos dos piezas más de estado a nuestro componente:
+```js
+function UserList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true); // Empezamos en 'cargando'
+  const [error, setError] = useState(null);    // No hay error al principio
+  
+  // ...
+}
+```
+Ahora, modificamos nuestra lógica de fetch para actualizar estos estados:
+```js
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      // setLoading(true) ya está en el estado inicial, no hace falta ponerlo aquí la primera vez.
+      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      if (!response.ok) { // Si la respuesta no es 2xx (éxito)
+        throw new Error('La respuesta de la red no fue satisfactoria');
+      }
+      const data = await response.json();
+      setUsers(data); // Estado de éxito
+    } catch (err) {
+      setError(err); // Estado de error
+    } finally {
+      setLoading(false); // Deja de cargar, tanto si hubo éxito como si hubo error
+    }
+  };
+ 
+  fetchUsers();
+}, []);
+```
+Y finalmente, usamos *renderizado condicional* en nuestro JSX para mostrar la UI adecuada para cada estado:
+```js
+// ... dentro del componente UserList
+ 
+  if (loading) {
+    return <p>Cargando usuarios...</p>;
+  }
+ 
+  if (error) {
+    return <p>Error al cargar los datos: {error.message}</p>;
+  }
+ 
+  // Si no está cargando y no hay error, entonces mostramos los datos.
+  return (
+    <div>
+      <h1>Lista de Usuarios</h1>
+      <ul>
+        {users.map(user => <li key={user.id}>{user.name}</li>)}
+      </ul>
+    </div>
+  );
+```
+Este patrón de loading/error/success es fundamental para crear aplicaciones que se sientan profesionales y comunicativas.
+
+=== Envío de datos al backend (solicitudes POST)
+Hasta ahora solo hemos leído datos (GET). Pero, ¿cómo creamos un nuevo usuario, publicamos un nuevo post o añadimos un producto al inventario? Para esto, necesitamos enviar datos al backend, lo cual se hace comúnmente con una solicitud *POST*.
+
+La API fetch nos permite hacerlo pasándole un segundo argumento: un objeto de configuración.
+
+*Así se ve una solicitud POST:*
+```js
+fetch('https://api.ejemplo.com/posts', {
+  method: 'POST', // 1. Especificamos el método
+  headers: {
+    // 2. Le decimos al servidor que le estamos enviando datos en formato JSON
+    'Content-Type': 'application/json',
+  },
+  // 3. El cuerpo de la solicitud, con nuestros datos convertidos a un string JSON
+  body: JSON.stringify({
+    title: 'Mi Nuevo Post',
+    body: 'Este es el contenido de mi increíble post sobre React.',
+    userId: 1,
+  }),
+})
+.then(response => response.json())
+.then(json => console.log('Post creado con éxito:', json));
+```
+
+==== Ejemplo práctico: un formulario para crear un post
+Vamos a crear un formulario que envíe los datos para un nuevo post.
+```js
+// NewPostForm.js
+import React, { useState } from 'react';
+ 
+function NewPostForm() {
+  const [title, setTitle] = useState('');
+ 
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Previene que la página se recargue al enviar el form
+ 
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title,
+          body: 'Contenido de ejemplo', // Podrías añadir más campos al formulario
+          userId: 1,
+        }),
+      });
+ 
+      if (!response.ok) throw new Error('Falló la creación del post');
+ 
+      const data = await response.json();
+      alert(`¡Post creado con ID: ${data.id}!`);
+      setTitle(''); // Limpiamos el input después de enviar
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+ 
+  return (
+    <form onSubmit={handleSubmit}>
+      <h3>Crear Nuevo Post</h3>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Título del post"
+        required
+      />
+      <button type="submit">Crear Post</button>
+    </form>
+  );
+}
+```
+
+= CORS
+== ¿Qué es CORS y por qué existe?
+Los navegadores web tienen una estricta política de seguridad llamada *"Same-Origin Policy" (Política del Mismo Origen)*.
+
+Un *Origen* se define por la combinación de *protocolo* (http), *dominio* (localhost) y *puerto* (3000).
+
+Si tu aplicación de React corre en http://localhost:3000 y tu API corre en http://localhost:5000, para el navegador *son dos orígenes completamente diferentes* porque los puertos no coinciden.
+
+La política del mismo origen, por defecto, prohíbe que una página web haga solicitudes a un origen distinto al suyo. Es una medida de seguridad para proteger a los usuarios, evitando que un script malicioso en una página pueda robar información de otra.
+
+Aquí es donde entra *CORS (Cross-Origin Resource Sharing)* o "Intercambio de Recursos de Origen Cruzado".
+
+*CORS* no es un error. Es el *mecanismo* que permite a un servidor "relajar" la política del mismo origen y decirle al navegador: "Confío en este otro origen, permítele hacerme peticiones".
+
+*El famoso "error de CORS" que ves en la consola significa que tu servidor de backend NO le ha dado permiso a tu frontend de React para que le pida cosas.*
+
+*El Flujo del Error:*
++ Tu app en localhost:3000 intenta hacer un fetch a tu API en localhost:5000.
++ El navegador detecta que es una petición de origen cruzado.
++ El navegador le pregunta al servidor (:5000): "Oye, ¿tienes permitido que :3000 te pida cosas?".
++ El servidor no responde con las cabeceras Access-Control-Allow-Origin correctas.
++ El navegador, por seguridad, *bloquea la petición* y te muestra el error de CORS.
+
+La solución real y para producción es configurar el backend para que envíe estas cabeceras. Pero durante el desarrollo, create-react-app nos da una solución mucho más simple.
+
+== La solución en desarrollo: el proxy mágico
+Para evitar tener que configurar el backend cada vez que iniciamos un proyecto, podemos usar la funcionalidad de *proxy* integrada en el servidor de desarrollo de React.
+
+*Analogía*: Imagina que tu app en :3000 (el Frontend) no tiene permiso para llamar directamente al edificio de enfrente :5000 (el Backend). El proxy es como un *recepcionista* en tu propio edificio.
+
+- Tú le das tu petición al recepcionista (que está en tu mismo origen, :3000).
+- El recepcionista, que sí tiene un permiso especial, hace la llamada al :5000 por ti.
+- Cuando recibe la respuesta, te la entrega.
+
+Para el navegador, tu app nunca habló con un origen externo; siempre habló con su propio recepcionista en localhost:3000. ¡Problema resuelto!
+
+=== Cómo configurar el proxy
+Configurarlo es increíblemente fácil.
+1. En la raíz de tu proyecto de *React*, abre el archivo package.json.
+2. Añade la siguiente línea al nivel principal del objeto JSON (al mismo nivel que "name" y "version"):
+```json
+"proxy": "http://localhost:5000"
+```
+3. _Asegúrate de que el puerto (5000) coincida con el puerto donde corre tu servidor de backend._
+4. *¡Paso crucial!* Detén tu servidor de desarrollo de React (con Ctrl + C) y *vuelve a iniciarlo* (npm start). Los cambios en package.json no se aplican en caliente.
+5. Ahora, modifica tus llamadas fetch en el código de React. En lugar de usar la URL completa, usa una ruta relativa:
+❌ *Antes*:
+```js
+fetch('http://localhost:5000/api/usuarios')
+```
+✅ *Ahora*:
+```js
+fetch('/api/usuarios')
+```
+El servidor de desarrollo de React verá esta petición, notará la configuración del proxy, y la redirigirá automáticamente a http://localhost:5000/api/usuarios por ti.
+
+Con esto, te puedes olvidar de los problemas de CORS durante todo el desarrollo y enfocarte en construir tu aplicación.
